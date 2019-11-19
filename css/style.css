@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css?family=Coda:400,800|Righteous|Russo+One&display=swap');
+
+/*-----FONT SECTION-----*/
+
+h1{
+    font-family: 'Coda', cursive;
+}
+
+
+
+
+
+
+
+
+/*-----BG SECTION-----*/
+.bg-transparent{
+    background-color: transparent !important;
+}
+.bg-header{
+    background-image: url(../medias/blur-bright-dark-design-565064.jpg);
+    background-size: cover;
+    background-position: center;
+    height: 100%;
+}
+
+.bg-section-2{
+    background: white;
+}
+
+.div-3{
+    background: url(../medias/hot-air-balloon-2411851.jpg);
+    background-size: cover;
+}
+
+
+.bg-red{
+    background-color: #ff002b;
+}
+
+/*-----Height & width section-----*/
+
+.h-section-100vh{
+    height: 100vh;
+}
+
+.h-section-50vh{
+    height:50vh;
+}
+
+/*-----SHADOW------*/
+
+.text-shadow-clear{
+    text-shadow: -3px 2px 0px rgb(0, 136, 146);
+}
