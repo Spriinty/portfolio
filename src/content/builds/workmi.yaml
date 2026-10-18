@@ -1,0 +1,19 @@
+nom: Workmi
+numero: 3
+visible: true
+type: Vitrines en ligne · commerce local
+resume: >-
+  Une plateforme pour les commerçants : chacun crée sa vitrine à son adresse
+  workmi.pro/s/sa-boutique, avec ses sections, ses photos, ses produits ou
+  services et un système de réservation. Pas de paiement en ligne : le but est
+  d’amener les clients en magasin.
+statut: auto
+derniereActivite: '2026-10-10'
+couleurs:
+  titre: '#A9A2FF'
+  fond: '#12111F'
+  accent: '#A9A2FF'
+liens:
+  - libelle: workmi.pro
+    url: https://www.workmi.pro
+pages: Présentation

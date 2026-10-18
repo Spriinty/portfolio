@@ -1,0 +1,201 @@
+---
+import Studio from '../layouts/Studio.astro';
+import Statut from '../components/Statut.astro';
+import { lireBuilds, type Build } from '../lib/contenu';
+
+export async function getStaticPaths() {
+  const builds = await lireBuilds();
+  return builds.map((build) => ({ params: { build: build.slug }, props: { build } }));
+}
+
+interface Props {
+  build: Build;
+}
+
+const { build } = Astro.props;
+const numero = String(build.numero).padStart(2, '0');
+---
+
+<Studio
+  titre={`${build.nom} · Spriinty’s Studio`}
+  description={build.resume || build.type}
+  theme={build.couleurs}
+>
+  <div class="fil">
+    <div class="conteneur fil__barre">
+      <a href="/#builds">← Tous les builds</a>
+      <span class="fil__statut">
+        Build {numero} ·
+        <Statut choix={build.statut} derniereActivite={build.derniereActivite} />
+      </span>
+    </div>
+  </div>
+
+  <header class="conteneur tete">
+    <div class="tete__gauche">
+      {build.type && <p class="surtitre tete__type">{build.type}</p>}
+      <h1 class="tete__nom">{build.nom}</h1>
+    </div>
+    <div class="tete__droite">
+      {build.resume && <p class="tete__resume">{build.resume}</p>}
+      {
+        build.liens.length > 0 && (
+          <div class="tete__liens">
+            {build.liens.map((lien, i) => (
+              <a
+                href={lien.url}
+                class:list={['bouton', { 'bouton--accent': i === 0 }]}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {lien.libelle} ↗
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </header>
+
+  <section class="conteneur chantier" aria-label="Sous-pages">
+    <div class="chantier__bloc">
+      <p class="surtitre">Atelier en cours</p>
+      <p class="chantier__texte">
+        {
+          build.pages ? (
+            <Fragment>
+              Sous-pages en préparation : <strong>{build.pages}</strong>
+            </Fragment>
+          ) : (
+            'D’autres contenus arrivent bientôt ici.'
+          )
+        }
+      </p>
+    </div>
+  </section>
+</Studio>
+
+<style>
+  .fil {
+    border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  }
+
+  .fil__barre {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px 16px;
+    min-height: 52px;
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gris);
+  }
+
+  .fil__barre a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--texte);
+    text-decoration: none;
+  }
+
+  .fil__barre a:hover {
+    color: var(--accent);
+  }
+
+  .fil__statut {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .fil__statut :global(.statut) {
+    color: var(--texte);
+  }
+
+  .tete {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+    align-items: end;
+    gap: 40px 56px;
+    padding-block: 96px 64px;
+  }
+
+  .tete__type {
+    margin-bottom: 22px;
+    color: var(--accent);
+  }
+
+  .tete__nom {
+    margin: 0;
+    font-family: var(--f-titre);
+    font-weight: 900;
+    font-size: clamp(60px, 9vw, 128px);
+    line-height: 0.88;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+    color: var(--titre-build);
+  }
+
+  .tete__droite {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .tete__resume {
+    margin: 0;
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--texte-doux);
+  }
+
+  .tete__liens {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .chantier {
+    padding-bottom: 112px;
+  }
+
+  .chantier__bloc {
+    display: grid;
+    gap: 12px;
+    padding: 40px;
+    border: 1px dashed rgb(255 255 255 / 0.16);
+  }
+
+  .chantier__texte {
+    margin: 0;
+    font-size: 18px;
+    color: var(--texte-doux);
+  }
+
+  .chantier__texte strong {
+    color: var(--texte);
+    font-weight: 600;
+  }
+
+  @media (max-width: 767px) {
+    .tete {
+      padding-block: 56px 40px;
+    }
+
+    .tete__resume {
+      font-size: 17px;
+    }
+
+    .chantier {
+      padding-bottom: 72px;
+    }
+
+    .chantier__bloc {
+      padding: 24px;
+    }
+  }
+</style>

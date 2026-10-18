@@ -1,0 +1,59 @@
+---
+interface Props {
+  liens: { linkedin: string | null; github: string | null; workmi: string | null };
+}
+
+const { liens } = Astro.props;
+const externes = [
+  { nom: 'LinkedIn', url: liens.linkedin },
+  { nom: 'GitHub', url: liens.github },
+  { nom: 'Workmi', url: liens.workmi },
+].filter((lien) => lien.url);
+---
+
+<footer class="pied">
+  <div class="conteneur pied__barre">
+    <span>© {new Date().getFullYear()} Spriinty’s Studio</span>
+    <nav class="pied__liens" aria-label="Liens externes">
+      {externes.map((lien) => <a href={lien.url} target="_blank" rel="noopener noreferrer">{lien.nom} ↗</a>)}
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .pied {
+    background: var(--noir-profond);
+    border-top: 1px solid var(--trait);
+  }
+
+  .pied__barre {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px 24px;
+    padding-block: 24px;
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gris);
+  }
+
+  .pied__liens {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 24px;
+  }
+
+  .pied__liens a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    text-decoration: none;
+  }
+
+  .pied__liens a:hover {
+    color: var(--accent);
+  }
+</style>

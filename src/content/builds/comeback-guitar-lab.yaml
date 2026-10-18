@@ -1,0 +1,21 @@
+nom: Comeback Guitar Lab
+numero: 1
+visible: true
+type: Lutherie · restauration
+resume: >-
+  Rendre jouable ce qui a vécu. Abaisser l’action, refaire les frettes, changer
+  les micros, reprendre l’électronique, sans dénaturer l’instrument.
+statut: auto
+derniereActivite: '2026-10-17'
+couleurs:
+  titre: '#E9B27A'
+  fond: '#15100C'
+  accent: '#D08A4C'
+liens:
+  - libelle: TikTok
+    url: https://www.tiktok.com/@comeback_guitar_l
+  - libelle: Instagram
+    url: https://www.instagram.com/comeback_guitar_lab/
+  - libelle: Facebook
+    url: https://www.facebook.com/p/Comeback-Guitar-Lab-61592063303689/
+pages: Vidéos · Outillage essentiel · Journal

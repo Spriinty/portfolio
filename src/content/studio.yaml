@@ -1,0 +1,35 @@
+scene: Sc. 01 · Int. Atelier — Nuit
+titre: |-
+  Des machines
+  bien réglées.
+intro: >-
+  Guitares restaurées, jeux vidéo et outils web. Chaque projet est un build :
+  certains tournent à plein régime, d’autres patientent au garage.
+manifeste:
+  surtitre: Journal de bord
+  titre: Le studio ne ferme jamais.
+  texte: >-
+    Un projet peut passer au ralenti pendant des semaines, puis repartir un soir
+    où l’idée revient. Ici, rien ne disparaît : chaque build garde sa page, son
+    statut et son historique.
+atelier:
+  titre: Quentin, alias Spriinty
+  texte: >-
+    Passionné de mécanique, de guitares et de code. Je fabrique des choses : des
+    guitares remises en état, des jeux, des outils web. Vous tenez un commerce
+    et cherchez une vitrine en ligne ? Ça se passe sur Workmi.
+  technos:
+    - groupe: IA
+      outils: Claude, Claude Code, Gemini, Google Labs
+    - groupe: Web
+      outils: Astro, React, Next.js, TypeScript, Tailwind CSS, Keystatic
+    - groupe: Données et services
+      outils: Supabase, Prisma, PostgreSQL, Stripe, Resend, Node.js
+    - groupe: Jeu et animation
+      outils: Phaser, WebGL, Canvas, Vite, Godot
+    - groupe: CMS et hébergement
+      outils: WordPress, PHP, Vercel, GitHub Pages, itch.io
+liens:
+  linkedin: https://www.linkedin.com/in/quentin-petrequin-6116a1175/
+  github: https://github.com/Spriinty
+  workmi: https://www.workmi.pro

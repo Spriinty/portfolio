@@ -1,0 +1,16 @@
+nom: Jaquauto Arcade
+numero: 5
+visible: true
+type: Plateforme de jeux · entreprise
+resume: >-
+  Une plateforme de mini-jeux créée pour l’entreprise où je travaille.
+statut: auto
+derniereActivite: '2026-10-16'
+couleurs:
+  titre: '#F05A5A'
+  fond: '#140C0C'
+  accent: '#F05A5A'
+liens:
+  - libelle: Jouer
+    url: https://jaquauto-arcade.vercel.app
+pages: ''

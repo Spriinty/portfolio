@@ -1,0 +1,148 @@
+---
+interface Props {
+  github: string | null;
+}
+
+const { github } = Astro.props;
+---
+
+<header class="entete">
+  <div class="conteneur entete__barre">
+    <a href="/" class="entete__logo">Spriinty’s Studio</a>
+    <button
+      type="button"
+      class="entete__bouton"
+      aria-expanded="false"
+      aria-controls="menu-principal"
+      data-menu-bouton
+    >
+      <span data-menu-libelle>Menu</span>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <path d="M2 5h14M2 9h14M2 13h14" stroke="currentColor" stroke-width="1.5"></path>
+      </svg>
+    </button>
+    <nav id="menu-principal" class="entete__nav" aria-label="Navigation principale" data-menu>
+      <a href="/#builds">Builds</a>
+      <a href="/#atelier">Derrière le studio</a>
+      {github && <a href={github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>}
+    </nav>
+  </div>
+</header>
+
+<style>
+  .entete {
+    position: relative;
+    z-index: 20;
+    background: var(--noir-profond);
+  }
+
+  .entete__barre {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    min-height: var(--entete);
+  }
+
+  .entete__logo {
+    font-family: var(--f-titre);
+    font-weight: 900;
+    font-size: 26px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--texte);
+  }
+
+  .entete__nav {
+    display: flex;
+    gap: 28px;
+    font-family: var(--f-mono);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .entete__nav a {
+    padding: 12px 0;
+    color: var(--texte);
+    text-decoration: none;
+  }
+
+  .entete__nav a:hover {
+    color: var(--accent);
+  }
+
+  .entete__bouton {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    .entete__logo {
+      font-size: 22px;
+    }
+
+    .entete__bouton {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 44px;
+      padding: 0 12px;
+      border: 1px solid var(--bord);
+      background: none;
+      color: var(--texte);
+      font-family: var(--f-mono);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .entete__nav {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      gap: 0;
+      padding: 4px var(--gouttiere) 16px;
+      background: var(--noir-profond);
+      border-bottom: 1px solid var(--trait);
+    }
+
+    .entete__nav.est-ouvert {
+      display: flex;
+    }
+
+    .entete__nav a {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--trait);
+    }
+  }
+</style>
+
+<script>
+  const bouton = document.querySelector<HTMLButtonElement>('[data-menu-bouton]');
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
+  const libelle = document.querySelector<HTMLElement>('[data-menu-libelle]');
+
+  if (bouton && menu) {
+    const basculer = (ouvert: boolean) => {
+      bouton.setAttribute('aria-expanded', String(ouvert));
+      menu.classList.toggle('est-ouvert', ouvert);
+      if (libelle) libelle.textContent = ouvert ? 'Fermer' : 'Menu';
+    };
+
+    bouton.addEventListener('click', () => basculer(bouton.getAttribute('aria-expanded') !== 'true'));
+    menu.addEventListener('click', (e) => {
+      if ((e.target as Element).closest('a')) basculer(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menu.classList.contains('est-ouvert')) {
+        basculer(false);
+        bouton.focus();
+      }
+    });
+  }
+</script>

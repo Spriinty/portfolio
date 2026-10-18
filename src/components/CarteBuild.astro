@@ -1,0 +1,161 @@
+---
+import Statut from './Statut.astro';
+import type { Build } from '../lib/contenu';
+import { imageDeCarte } from '../lib/images';
+
+interface Props {
+  build: Build;
+}
+
+const { build } = Astro.props;
+const ou = build.liens.map((lien) => lien.libelle).join(' · ') || 'Bientôt en ligne';
+const fond = await imageDeCarte(build.image);
+---
+
+<a href={`/${build.slug}`} class="carte" style={`--titre-build: ${build.couleurs.titre}`}>
+  {fond && <img src={fond.src} alt="" class="carte__fond" loading="lazy" decoding="async" />}
+  <div class="carte__haut">
+    <span>Build {String(build.numero).padStart(2, '0')}</span>
+    <Statut choix={build.statut} derniereActivite={build.derniereActivite} />
+  </div>
+  <h3 class="carte__nom">{build.nom}</h3>
+  <dl class="carte__fiche">
+    <dt>Type</dt>
+    <dd>{build.type || '—'}</dd>
+    <dt>Où</dt>
+    <dd>{ou}</dd>
+    <dt>Pages</dt>
+    <dd>{build.pages || '—'}</dd>
+  </dl>
+</a>
+
+<style>
+  .carte {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 420px;
+    padding: 24px;
+    background: var(--carte);
+    border: 1px solid var(--bord);
+    color: var(--texte);
+    text-decoration: none;
+    transition:
+      transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
+      border-color 0.35s,
+      box-shadow 0.35s;
+  }
+
+  .carte:hover {
+    transform: translateY(-6px);
+    border-color: var(--accent);
+    box-shadow: 0 18px 50px -20px rgb(255 90 54 / 0.45);
+  }
+
+  /* Image du projet en filigrane : invisible au repos, elle se révèle au survol.
+     Le dégradé du masque la fait disparaître vers le bas, derrière la fiche. */
+  .carte__fond {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    filter: grayscale(0.4);
+    transform: scale(1.06);
+    mask-image: linear-gradient(to bottom, #000 35%, transparent 85%);
+    transition:
+      opacity 0.6s ease,
+      transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .carte:hover .carte__fond,
+  .carte:focus-visible .carte__fond {
+    opacity: 0.18;
+    transform: scale(1);
+  }
+
+  /* Pas de survol au doigt : l'image reste visible, encore plus discrète. */
+  @media (hover: none) {
+    .carte__fond {
+      opacity: 0.12;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carte,
+    .carte:hover,
+    .carte__fond,
+    .carte:hover .carte__fond {
+      transform: none;
+      transition: none;
+    }
+  }
+
+  .carte__haut {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gris);
+  }
+
+  .carte__haut :global(.statut) {
+    color: var(--texte);
+  }
+
+  .carte__nom {
+    flex-grow: 1;
+    display: flex;
+    align-items: flex-end;
+    margin: 0;
+    padding: 40px 0 28px;
+    font-family: var(--f-titre);
+    font-weight: 800;
+    font-size: 46px;
+    line-height: 0.92;
+    text-transform: uppercase;
+    color: var(--titre-build);
+  }
+
+  .carte__fiche {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 10px 12px;
+    margin: 0;
+    padding-top: 18px;
+    border-top: 1px dashed var(--pointille);
+    font-family: var(--f-mono);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .carte__fiche dt {
+    color: var(--gris);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .carte__fiche dd {
+    margin: 0;
+  }
+
+  @media (max-width: 767px) {
+    .carte {
+      min-height: 320px;
+    }
+
+    .carte__nom {
+      padding-block: 32px 24px;
+      font-size: 42px;
+    }
+  }
+</style>

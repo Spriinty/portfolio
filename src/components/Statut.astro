@@ -1,0 +1,33 @@
+---
+import { LIBELLES, statutEffectif, type ChoixStatut } from '../lib/statut';
+
+interface Props {
+  choix: ChoixStatut;
+  derniereActivite: string | null;
+}
+
+const { choix, derniereActivite } = Astro.props;
+const statut = statutEffectif(choix, derniereActivite);
+---
+
+<span
+  class="statut"
+  data-statut={statut}
+  data-statut-auto={choix === 'auto' ? (derniereActivite ?? '') : undefined}
+>
+  <span class="statut__point" aria-hidden="true"></span>
+  <span class="statut__libelle">{LIBELLES[statut]}</span>
+</span>
+
+<script>
+  import { LIBELLES, statutAuto } from '../lib/statut';
+
+  // Le site est statique : le statut automatique est recalculé dans le navigateur
+  // pour rester juste même si le site n'a pas été reconstruit depuis des semaines.
+  document.querySelectorAll<HTMLElement>('[data-statut-auto]').forEach((el) => {
+    const statut = statutAuto(el.dataset.statutAuto || null);
+    el.dataset.statut = statut;
+    const libelle = el.querySelector('.statut__libelle');
+    if (libelle) libelle.textContent = LIBELLES[statut];
+  });
+</script>

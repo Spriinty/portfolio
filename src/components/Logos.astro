@@ -1,0 +1,240 @@
+---
+// Logos des technos qui dérivent en diagonale derrière « Derrière le studio ». Quand deux logos
+// se croisent, ils rebondissent l'un sur l'autre avec un bref éclat de la couleur d'accent.
+
+interface Props {
+  logos: { nom: string; chemin: string }[];
+}
+
+const { logos } = Astro.props;
+---
+
+<canvas class="logos" data-logos={JSON.stringify(logos.map((logo) => logo.chemin))} aria-hidden="true"
+></canvas>
+
+<style>
+  .logos {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  type Logo = {
+    forme: Path2D;
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    croisiereX: number;
+    croisiereY: number;
+    taille: number;
+    rayon: number;
+    angle: number;
+    spin: number;
+    eclat: number;
+  };
+
+  const TEXTE: [number, number, number] = [238, 231, 215];
+
+  function hexVersRgb(hex: string): [number, number, number] {
+    const v = hex.replace('#', '');
+    const n = parseInt(v.length === 3 ? [...v].map((c) => c + c).join('') : v, 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+
+  function demarrer(cv: HTMLCanvasElement, zone: HTMLElement, ctx: CanvasRenderingContext2D, chemins: string[]) {
+    const calme = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const accent = hexVersRgb(getComputedStyle(zone).getPropertyValue('--accent').trim() || '#FF5A36');
+    const pointeur = { x: 0, y: 0, actif: false };
+    let W = 0;
+    let H = 0;
+    let logos: Logo[] = [];
+    let visible = false;
+    let raf = 0;
+    let avant = 0;
+
+    const creer = () => {
+      const petit = W < 600;
+      logos = [];
+      for (const chemin of petit ? chemins.slice(0, 12) : chemins) {
+        const taille = petit ? 20 + Math.random() * 10 : 28 + Math.random() * 16;
+        const rayon = taille * 0.62;
+        // Cap commun vers le bas à droite (25°), à ±20° près, pour que les trajectoires se croisent.
+        const cap = ((25 + (Math.random() - 0.5) * 40) * Math.PI) / 180;
+        const vitesse = 0.15 + Math.random() * 0.2;
+        // Quelques essais pour ne pas poser deux logos l'un sur l'autre au départ.
+        let x = 0;
+        let y = 0;
+        for (let essai = 0; essai < 20; essai++) {
+          x = Math.random() * W;
+          y = Math.random() * H;
+          if (logos.every((l) => Math.hypot(l.x - x, l.y - y) > l.rayon + rayon + 8)) break;
+        }
+        logos.push({
+          forme: new Path2D(chemin),
+          x,
+          y,
+          vx: Math.cos(cap) * vitesse,
+          vy: Math.sin(cap) * vitesse,
+          croisiereX: Math.cos(cap) * vitesse,
+          croisiereY: Math.sin(cap) * vitesse,
+          taille,
+          rayon,
+          angle: (Math.random() - 0.5) * 0.5,
+          spin: 0,
+          eclat: 0,
+        });
+      }
+    };
+
+    const dimensionner = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const [ancienW, ancienH] = [W, H];
+      W = zone.clientWidth;
+      H = zone.clientHeight;
+      cv.width = Math.round(W * dpr);
+      cv.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (!logos.length || !ancienW || !ancienH || (ancienW < 600) !== (W < 600)) creer();
+      else
+        for (const l of logos) {
+          l.x *= W / ancienW;
+          l.y *= H / ancienH;
+        }
+    };
+
+    const avancer = (dt: number) => {
+      for (const l of logos) {
+        // Après un choc, chaque logo retrouve peu à peu sa trajectoire de croisière.
+        l.vx += (l.croisiereX - l.vx) * 0.01 * dt;
+        l.vy += (l.croisiereY - l.vy) * 0.01 * dt;
+        if (pointeur.actif) {
+          const dx = l.x - pointeur.x;
+          const dy = l.y - pointeur.y;
+          const d = Math.hypot(dx, dy);
+          if (d > 0 && d < 120) {
+            const pousse = (1 - d / 120) * 0.08 * dt;
+            l.vx += (dx / d) * pousse;
+            l.vy += (dy / d) * pousse;
+          }
+        }
+        l.x += l.vx * dt;
+        l.y += l.vy * dt;
+        l.angle += l.spin * dt;
+        l.spin *= Math.pow(0.985, dt);
+        l.eclat *= Math.pow(0.95, dt);
+        // Sorti d'un côté, il revient de l'autre.
+        if (l.x > W + l.rayon) l.x = -l.rayon;
+        else if (l.x < -l.rayon) l.x = W + l.rayon;
+        if (l.y > H + l.rayon) l.y = -l.rayon;
+        else if (l.y < -l.rayon) l.y = H + l.rayon;
+      }
+
+      for (let i = 0; i < logos.length; i++) {
+        for (let j = i + 1; j < logos.length; j++) {
+          const a = logos[i];
+          const b = logos[j];
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const d = Math.hypot(dx, dy);
+          const contact = a.rayon + b.rayon;
+          if (d === 0 || d >= contact) continue;
+          const nx = dx / d;
+          const ny = dy / d;
+          const recouvrement = (contact - d) / 2;
+          a.x -= nx * recouvrement;
+          a.y -= ny * recouvrement;
+          b.x += nx * recouvrement;
+          b.y += ny * recouvrement;
+          // Choc entre masses égales : les vitesses s'échangent le long de l'axe du choc.
+          const approche = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny;
+          if (approche <= 0) continue;
+          const impulsion = approche * 0.95;
+          a.vx -= impulsion * nx;
+          a.vy -= impulsion * ny;
+          b.vx += impulsion * nx;
+          b.vy += impulsion * ny;
+          const force = Math.min(1, approche * 3);
+          a.eclat = Math.max(a.eclat, force);
+          b.eclat = Math.max(b.eclat, force);
+          const rotation = (Math.random() - 0.5) * 0.02 * force;
+          a.spin += rotation;
+          b.spin -= rotation;
+        }
+      }
+    };
+
+    const dessiner = () => {
+      ctx.clearRect(0, 0, W, H);
+      for (const l of logos) {
+        const e = l.eclat;
+        const [r, g, b] = TEXTE.map((c, k) => Math.round(c + (accent[k] - c) * e));
+        ctx.fillStyle = `rgba(${r},${g},${b},${0.08 + 0.32 * e})`;
+        ctx.save();
+        ctx.translate(l.x, l.y);
+        ctx.rotate(l.angle);
+        ctx.scale(l.taille / 24, l.taille / 24);
+        ctx.translate(-12, -12);
+        ctx.fill(l.forme);
+        ctx.restore();
+      }
+    };
+
+    const boucle = (temps: number) => {
+      raf = requestAnimationFrame(boucle);
+      // Pas de temps en « images à 60 i/s », borné pour éviter un saut après un onglet en pause.
+      const dt = avant ? Math.min(3, (temps - avant) / 16.67) : 1;
+      avant = temps;
+      avancer(dt);
+      dessiner();
+    };
+
+    const lancer = () => {
+      if (raf || !visible || document.hidden || calme.matches) return;
+      avant = 0;
+      raf = requestAnimationFrame(boucle);
+    };
+
+    const arreter = () => {
+      cancelAnimationFrame(raf);
+      raf = 0;
+    };
+
+    zone.addEventListener('pointermove', (e) => {
+      const r = zone.getBoundingClientRect();
+      pointeur.x = e.clientX - r.left;
+      pointeur.y = e.clientY - r.top;
+      pointeur.actif = true;
+    });
+    zone.addEventListener('pointerleave', () => (pointeur.actif = false));
+
+    new IntersectionObserver(([entree]) => {
+      visible = entree.isIntersecting;
+      if (visible) lancer();
+      else arreter();
+    }).observe(zone);
+    document.addEventListener('visibilitychange', () => (document.hidden ? arreter() : lancer()));
+    calme.addEventListener('change', () => {
+      arreter();
+      dessiner();
+      lancer();
+    });
+
+    // Se déclenche aussi au chargement : c'est lui qui place les logos.
+    new ResizeObserver(() => {
+      dimensionner();
+      dessiner();
+    }).observe(zone);
+  }
+
+  const canvas = document.querySelector<HTMLCanvasElement>('canvas[data-logos]');
+  const zone = canvas?.parentElement;
+  const ctx = canvas?.getContext('2d');
+  const chemins: string[] = canvas ? JSON.parse(canvas.dataset.logos || '[]') : [];
+  if (canvas && zone && ctx && chemins.length) demarrer(canvas, zone, ctx, chemins);
+</script>

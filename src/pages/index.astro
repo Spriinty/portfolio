@@ -1,0 +1,384 @@
+---
+import Studio from '../layouts/Studio.astro';
+import Etoiles from '../components/Etoiles.astro';
+import CarteBuild from '../components/CarteBuild.astro';
+import Logos from '../components/Logos.astro';
+import { lireBuilds, lireStudio } from '../lib/contenu';
+import { logosDesTechnos } from '../lib/logos';
+import { LIBELLES, type Statut } from '../lib/statut';
+
+const studio = await lireStudio();
+const builds = await lireBuilds();
+const lignesTitre = studio.titre.split('\n');
+const statuts = Object.keys(LIBELLES) as Statut[];
+const { liens, atelier, manifeste } = studio;
+const logos = logosDesTechnos(atelier.technos);
+---
+
+<Studio titre="Spriinty’s Studio" description={studio.intro}>
+  <section class="hero">
+    <Etoiles />
+    <div class="hero__bande" aria-hidden="true"></div>
+    <div class="conteneur hero__contenu">
+      <p class="hero__scene">{studio.scene}</p>
+      <h1 class="hero__titre">
+        {lignesTitre.map((ligne, i) => <Fragment>{i > 0 && <br />}{ligne}</Fragment>)}
+      </h1>
+      <p class="hero__intro">{studio.intro}</p>
+      <div class="hero__actions">
+        <a href="#builds" class="bouton bouton--plein">Voir les builds</a>
+        <a href="#atelier" class="bouton">Derrière le studio</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="builds" class="conteneur builds" aria-labelledby="titre-builds">
+    <div class="builds__tete">
+      <div class="builds__titres">
+        <p class="surtitre">Le garage</p>
+        <h2 id="titre-builds" class="titre-section">Les builds</h2>
+      </div>
+      <ul class="legende" aria-label="Légende des statuts">
+        {
+          statuts.map((statut) => (
+            <li class="statut" data-statut={statut}>
+              <span class="statut__point" aria-hidden="true" />
+              {LIBELLES[statut]}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <div class="builds__grille">
+      {builds.map((build) => <CarteBuild build={build} />)}
+    </div>
+  </section>
+
+  <section class="conteneur manifeste" aria-labelledby="titre-manifeste">
+    <div class="manifeste__grille">
+      <div class="manifeste__titres">
+        <p class="surtitre manifeste__surtitre">{manifeste.surtitre}</p>
+        <h2 id="titre-manifeste" class="manifeste__titre">{manifeste.titre}</h2>
+      </div>
+      <p class="manifeste__texte">{manifeste.texte}</p>
+    </div>
+  </section>
+
+  <section id="atelier" class="conteneur atelier" aria-labelledby="titre-atelier">
+    <div class="atelier__bloc">
+      {logos.length > 0 && <Logos logos={logos} />}
+      <div class="atelier__haut">
+        <div class="atelier__texte">
+          <p class="surtitre">Derrière le studio</p>
+          <h2 id="titre-atelier" class="atelier__titre">{atelier.titre}</h2>
+          <p class="atelier__para">{atelier.texte}</p>
+        </div>
+        <div class="atelier__actions">
+          {
+            liens.workmi && (
+              <a href={liens.workmi} class="bouton bouton--accent" target="_blank" rel="noopener noreferrer">
+                Workmi.pro ↗
+              </a>
+            )
+          }
+          {
+            liens.linkedin && (
+              <a href={liens.linkedin} class="bouton" target="_blank" rel="noopener noreferrer">
+                LinkedIn ↗
+              </a>
+            )
+          }
+        </div>
+      </div>
+      {
+        atelier.technos.length > 0 && (
+          <div class="atelier__technos">
+            <p class="surtitre">Fabriqué avec</p>
+            <dl class="technos">
+              {atelier.technos.map((techno) => (
+                <div>
+                  <dt>{techno.groupe}</dt>
+                  <dd>{techno.outils}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        )
+      }
+    </div>
+  </section>
+</Studio>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    min-height: clamp(560px, calc(100svh - var(--entete)), 780px);
+    padding: 64px 0 calc(var(--bande) + 56px);
+    background: var(--noir);
+    border-bottom: 1px solid var(--trait);
+  }
+
+  .hero__bande {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--bande);
+    background: var(--noir-profond);
+  }
+
+  .hero__contenu {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .hero__scene {
+    margin: 0;
+    font-family: var(--f-mono);
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent-texte);
+  }
+
+  .hero__titre {
+    max-width: 1100px;
+    margin: 0;
+    font-family: var(--f-titre);
+    font-weight: 900;
+    font-size: clamp(60px, 11vw, 168px);
+    line-height: 0.86;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+  }
+
+  .hero__intro {
+    max-width: 560px;
+    margin: 0;
+    font-size: 19px;
+    line-height: 1.55;
+    color: var(--texte-doux);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .builds {
+    padding-block: 112px 40px;
+  }
+
+  .builds__tete {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+
+  .builds__titres {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .legende {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gris);
+  }
+
+  .builds__grille {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+    gap: 20px;
+  }
+
+  .manifeste {
+    padding-block: 96px;
+  }
+
+  .manifeste__grille {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    gap: 32px 48px;
+    padding-block: 56px;
+    border-block: 1px solid var(--trait);
+  }
+
+  .manifeste__titres {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .manifeste__surtitre {
+    color: var(--accent-texte);
+  }
+
+  .manifeste__titre {
+    margin: 0;
+    font-family: var(--f-titre);
+    font-weight: 800;
+    font-size: clamp(40px, 5vw, 56px);
+    line-height: 0.92;
+    text-transform: uppercase;
+  }
+
+  .manifeste__texte {
+    align-self: end;
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--texte-doux);
+  }
+
+  .atelier {
+    padding-bottom: 112px;
+  }
+
+  .atelier__bloc {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: grid;
+    gap: 40px;
+    padding: 56px;
+    background: var(--carte);
+    border: 1px solid var(--bord);
+  }
+
+  /* Le texte passe devant les logos animés. */
+  .atelier__haut,
+  .atelier__technos {
+    position: relative;
+    z-index: 1;
+  }
+
+  .atelier__haut {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 32px 40px;
+  }
+
+  .atelier__texte {
+    flex: 1 1 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .atelier__titre {
+    margin: 0;
+    font-family: var(--f-titre);
+    font-weight: 800;
+    font-size: clamp(36px, 4.5vw, 48px);
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+
+  .atelier__para {
+    max-width: 600px;
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--texte-doux);
+  }
+
+  .atelier__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .atelier__technos {
+    display: grid;
+    gap: 20px;
+    padding-top: 32px;
+    border-top: 1px dashed var(--pointille);
+  }
+
+  .technos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+    gap: 20px 32px;
+    margin: 0;
+  }
+
+  .technos dt {
+    margin-bottom: 6px;
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gris);
+  }
+
+  .technos dd {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 767px) {
+    .hero {
+      padding-top: 48px;
+    }
+
+    .hero__contenu {
+      gap: 22px;
+    }
+
+    .hero__intro {
+      font-size: 17px;
+    }
+
+    .builds {
+      padding-block: 72px 24px;
+    }
+
+    .builds__tete {
+      margin-bottom: 32px;
+    }
+
+    .manifeste {
+      padding-block: 64px;
+    }
+
+    .manifeste__grille {
+      padding-block: 40px;
+    }
+
+    .atelier {
+      padding-bottom: 72px;
+    }
+
+    .atelier__bloc {
+      gap: 32px;
+      padding: 24px;
+    }
+
+    .atelier__para {
+      font-size: 17px;
+    }
+  }
+</style>

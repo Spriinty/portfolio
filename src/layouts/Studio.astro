@@ -1,0 +1,45 @@
+---
+import '@fontsource-variable/big-shoulders-display';
+import '@fontsource-variable/instrument-sans';
+import '@fontsource-variable/jetbrains-mono';
+import '../styles/global.css';
+import Entete from '../components/Entete.astro';
+import Pied from '../components/Pied.astro';
+import { lireStudio } from '../lib/contenu';
+
+interface Props {
+  titre: string;
+  description: string;
+  /** Couleurs d'un build : la page prend son ambiance, la barre du studio reste la même. */
+  theme?: { fond: string; accent: string; titre: string };
+}
+
+const { titre, description, theme } = Astro.props;
+const studio = await lireStudio();
+const style = theme
+  ? `--fond: ${theme.fond}; --accent: ${theme.accent}; --titre-build: ${theme.titre};`
+  : undefined;
+---
+
+<!doctype html>
+<html lang="fr" style={style}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titre}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#050506" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={titre} />
+    <meta property="og:description" content={description} />
+  </head>
+  <body>
+    <a class="sr-only lien-evitement" href="#contenu">Aller au contenu</a>
+    <Entete github={studio.liens.github} />
+    <main id="contenu">
+      <slot />
+    </main>
+    <Pied liens={studio.liens} />
+  </body>
+</html>

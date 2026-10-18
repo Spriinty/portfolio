@@ -1,0 +1,236 @@
+---
+// Fond étoilé du hero : les particules fuient le pointeur (souris ou doigt), une lueur
+// le suit et des ondes se forment. Sans interaction, des ondes apparaissent seules.
+---
+
+<canvas class="etoiles" data-etoiles aria-hidden="true"></canvas>
+
+<style>
+  .etoiles {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  type Point = { x: number; y: number; vx: number; vy: number; s: number; t: number };
+  type Anneau = { x: number; y: number; r: number; a: number };
+
+  const FOND = 'rgb(13, 13, 14)';
+  const TEXTE: [number, number, number] = [238, 231, 215];
+
+  function hexVersRgb(hex: string): [number, number, number] {
+    const v = hex.replace('#', '');
+    const n = parseInt(v.length === 3 ? [...v].map((c) => c + c).join('') : v, 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+
+  function demarrer(cv: HTMLCanvasElement, zone: HTMLElement, ctx: CanvasRenderingContext2D) {
+    const calme = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const [ar, ag, ab] = hexVersRgb(getComputedStyle(zone).getPropertyValue('--accent').trim() || '#FF5A36');
+    const pointeur = { x: 0, y: 0, actif: false, derniereOnde: 0, derniereAction: 0 };
+    let W = 0;
+    let H = 0;
+    let points: Point[] = [];
+    let anneaux: Anneau[] = [];
+    let visible = true;
+    let raf = 0;
+    let prochaineOndeAuto = 0;
+
+    const semer = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = zone.clientWidth;
+      H = zone.clientHeight;
+      cv.width = Math.round(W * dpr);
+      cv.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      // Une particule pour 9 000 px² : une quarantaine sur téléphone, 120 environ sur grand écran.
+      const n = Math.round(Math.min(160, Math.max(40, (W * H) / 9000)));
+      points = Array.from({ length: n }, () => ({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.25 - 0.12,
+        vy: (Math.random() - 0.5) * 0.12,
+        s: Math.random() * 1.6 + 0.4,
+        t: Math.random() * Math.PI * 2,
+      }));
+      anneaux = [];
+      ctx.fillStyle = FOND;
+      ctx.fillRect(0, 0, W, H);
+    };
+
+    const onde = (x: number, y: number) => {
+      anneaux.push({ x, y, r: 4, a: 0.45 });
+      if (anneaux.length > 14) anneaux.shift();
+    };
+
+    const dessiner = (anime: boolean) => {
+      const m = pointeur;
+      // En animation, un voile semi-transparent laisse une traînée derrière les particules.
+      ctx.fillStyle = anime ? 'rgba(13, 13, 14, 0.42)' : FOND;
+      ctx.fillRect(0, 0, W, H);
+
+      if (m.actif) {
+        const lueur = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, 260);
+        lueur.addColorStop(0, `rgba(${ar},${ag},${ab},0.16)`);
+        lueur.addColorStop(1, `rgba(${ar},${ag},${ab},0)`);
+        ctx.fillStyle = lueur;
+        ctx.fillRect(0, 0, W, H);
+      }
+
+      if (anime) {
+        for (const p of points) {
+          p.t += 0.02;
+          if (m.actif) {
+            const dx = p.x - m.x;
+            const dy = p.y - m.y;
+            const d2 = dx * dx + dy * dy;
+            if (d2 < 22000) {
+              const d = Math.sqrt(d2) || 1;
+              const force = ((148 - d) / 148) * 0.9;
+              p.x += (dx / d) * force;
+              p.y += (dy / d) * force;
+            }
+          }
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < -10) p.x = W + 10;
+          if (p.x > W + 10) p.x = -10;
+          if (p.y < -10) p.y = H + 10;
+          if (p.y > H + 10) p.y = -10;
+        }
+      }
+
+      ctx.lineWidth = 0.6;
+      for (let i = 0; i < points.length; i++) {
+        const a = points[i];
+        for (let j = i + 1; j < points.length; j++) {
+          const b = points[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < 7000) {
+            ctx.strokeStyle = `rgba(${TEXTE},${0.09 * (1 - d2 / 7000)})`;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      for (const p of points) {
+        const scintille = 0.45 + Math.sin(p.t) * 0.3;
+        let proche = 0;
+        if (m.actif) {
+          const dx = p.x - m.x;
+          const dy = p.y - m.y;
+          proche = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy) / 220);
+        }
+        const r = Math.round(TEXTE[0] + (ar - TEXTE[0]) * proche);
+        const g = Math.round(TEXTE[1] + (ag - TEXTE[1]) * proche);
+        const b = Math.round(TEXTE[2] + (ab - TEXTE[2]) * proche);
+        ctx.fillStyle = `rgba(${r},${g},${b},${Math.min(1, scintille + proche * 0.6)})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.s + proche * 1.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      if (!anime) return;
+
+      ctx.lineWidth = 1;
+      for (const anneau of anneaux) {
+        anneau.r += 2.4;
+        anneau.a *= 0.965;
+        ctx.strokeStyle = `rgba(${ar},${ag},${ab},${anneau.a})`;
+        ctx.beginPath();
+        ctx.arc(anneau.x, anneau.y, anneau.r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      anneaux = anneaux.filter((anneau) => anneau.a > 0.02);
+
+      // Grain de pellicule.
+      for (let i = 0; i < 90; i++) {
+        ctx.fillStyle = `rgba(${TEXTE},${Math.random() * 0.05})`;
+        ctx.fillRect(Math.random() * W, Math.random() * H, 1, 1);
+      }
+    };
+
+    const boucle = (temps: number) => {
+      raf = requestAnimationFrame(boucle);
+      // Après 4 s sans interaction, une onde naît de temps en temps : la scène reste vivante sur mobile.
+      if (temps - pointeur.derniereAction > 4000 && temps > prochaineOndeAuto) {
+        onde(W * (0.15 + Math.random() * 0.7), H * (0.2 + Math.random() * 0.6));
+        prochaineOndeAuto = temps + 2200 + Math.random() * 1800;
+      }
+      dessiner(true);
+    };
+
+    const lancer = () => {
+      if (!raf && visible && !document.hidden && !calme.matches) raf = requestAnimationFrame(boucle);
+    };
+
+    const arreter = () => {
+      cancelAnimationFrame(raf);
+      raf = 0;
+    };
+
+    const relancer = () => {
+      arreter();
+      semer();
+      if (calme.matches) dessiner(false);
+      else lancer();
+    };
+
+    const placer = (e: PointerEvent) => {
+      const r = zone.getBoundingClientRect();
+      pointeur.x = e.clientX - r.left;
+      pointeur.y = e.clientY - r.top;
+      pointeur.actif = true;
+      pointeur.derniereAction = performance.now();
+    };
+
+    zone.addEventListener('pointermove', (e) => {
+      placer(e);
+      if (pointeur.derniereAction - pointeur.derniereOnde > 140) {
+        pointeur.derniereOnde = pointeur.derniereAction;
+        onde(pointeur.x, pointeur.y);
+      }
+    });
+    zone.addEventListener('pointerdown', (e) => {
+      placer(e);
+      onde(pointeur.x, pointeur.y);
+    });
+    zone.addEventListener('pointerup', (e) => {
+      if (e.pointerType !== 'mouse') pointeur.actif = false;
+    });
+    zone.addEventListener('pointercancel', () => (pointeur.actif = false));
+    zone.addEventListener('pointerleave', () => (pointeur.actif = false));
+
+    new IntersectionObserver(([entree]) => {
+      visible = entree.isIntersecting;
+      if (visible) lancer();
+      else arreter();
+    }).observe(zone);
+    document.addEventListener('visibilitychange', () => (document.hidden ? arreter() : lancer()));
+    calme.addEventListener('change', relancer);
+
+    // Se déclenche aussi au chargement : c'est lui qui sème le premier champ d'étoiles.
+    let largeur = -1;
+    let hauteur = -1;
+    new ResizeObserver(() => {
+      // Sur mobile, la barre d'adresse fait varier la hauteur de quelques pixels : on ignore.
+      if (zone.clientWidth === largeur && Math.abs(zone.clientHeight - hauteur) < 80) return;
+      largeur = zone.clientWidth;
+      hauteur = zone.clientHeight;
+      relancer();
+    }).observe(zone);
+  }
+
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-etoiles]');
+  const zone = canvas?.parentElement;
+  const ctx = canvas?.getContext('2d');
+  if (canvas && zone && ctx) demarrer(canvas, zone, ctx);
+</script>
