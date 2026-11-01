@@ -13,5 +13,13 @@ couleurs:
   titre: '#8FD3C8'
   fond: '#0E1716'
   accent: '#8FD3C8'
-liens: []
+liens:
+  - libelle: Youtube
+    url: https://www.youtube.com/@JuliettePixelRiff
+  - libelle: Tiktok
+    url: https://www.tiktok.com/@juliettepixelriff
+  - libelle: Instagram
+    url: https://www.instagram.com/pixel_and_riff/
+  - libelle: Facebook
+    url: https://www.facebook.com/profile.php?id=61595375105727
 pages: Vidéos
