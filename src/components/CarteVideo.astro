@@ -1,0 +1,176 @@
+---
+import Crayon from './Crayon.astro';
+import type { Video } from '../lib/contenu';
+import { PLATEFORMES, dateVideo, miniatureDe } from '../lib/videos';
+
+interface Props {
+  video: Video;
+}
+
+const { video } = Astro.props;
+const miniature = await miniatureDe(video);
+const [principal] = video.liens;
+---
+
+<!-- Le lien du titre (première plateforme) couvre la carte ; les pastilles et le crayon passent au-dessus. -->
+<article class="video" data-plateformes={video.liens.map((lien) => lien.plateforme).join(' ')}>
+  <div class="video__image">
+    {
+      miniature ? (
+        <img src={miniature} alt="" loading="lazy" decoding="async" />
+      ) : (
+        <div class="video__vide" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor">
+            <path d={PLATEFORMES[principal.plateforme].icone.path} />
+          </svg>
+        </div>
+      )
+    }
+    <span class="video__crayon">
+      <Crayon chemin={`collection/videos/item/${video.slug}`} libelle={`Modifier la vidéo ${video.titre}`} />
+    </span>
+  </div>
+  <div class="video__corps">
+    <p class="video__date"><time datetime={video.date}>{dateVideo(video.date)}</time></p>
+    <h3 class="video__titre">
+      <a href={principal.url} class="video__lien" target="_blank" rel="noopener noreferrer">{video.titre}</a>
+    </h3>
+    <ul class="video__plateformes">
+      {
+        video.liens.map((lien) => (
+          <li>
+            <a
+              href={lien.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${video.titre} sur ${PLATEFORMES[lien.plateforme].nom}`}
+              title={`Voir sur ${PLATEFORMES[lien.plateforme].nom}`}
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                <path d={PLATEFORMES[lien.plateforme].icone.path} />
+              </svg>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</article>
+
+<style>
+  .video {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: rgb(255 255 255 / 0.03);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    transition: border-color 0.3s;
+  }
+
+  .video[hidden] {
+    display: none;
+  }
+
+  .video:hover,
+  .video:has(.video__lien:focus-visible) {
+    border-color: var(--accent);
+  }
+
+  .video__image {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    overflow: hidden;
+    background: var(--noir-profond);
+  }
+
+  .video__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .video:hover .video__image img {
+    transform: scale(1.03);
+  }
+
+  /* Sans miniature : le logo de la plateforme sur une trame aux couleurs du build. */
+  .video__vide {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    color: var(--accent);
+    background:
+      radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 60%),
+      repeating-linear-gradient(0deg, rgb(255 255 255 / 0.04) 0 1px, transparent 1px 24px),
+      repeating-linear-gradient(90deg, rgb(255 255 255 / 0.04) 0 1px, transparent 1px 24px);
+  }
+
+  .video__crayon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+  }
+
+  .video__corps {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px 14px 12px;
+  }
+
+  .video__date {
+    margin: 0;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gris);
+  }
+
+  .video__titre {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .video__lien {
+    color: var(--texte);
+    text-decoration: none;
+  }
+
+  .video__lien:focus-visible {
+    outline: none;
+  }
+
+  .video__lien::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .video__plateformes {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    gap: 4px;
+    margin: auto 0 0 -10px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .video__plateformes a {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    color: var(--gris);
+  }
+
+  .video__plateformes a:hover {
+    color: var(--accent);
+  }
+</style>

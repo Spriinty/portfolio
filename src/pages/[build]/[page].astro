@@ -1,0 +1,266 @@
+---
+import Studio from '../../layouts/Studio.astro';
+import BarreBuild from '../../components/BarreBuild.astro';
+import { ADRESSE_VIDEOS, lireBuilds, type Build, type Page } from '../../lib/contenu';
+import { contenuEnHtml } from '../../lib/markdoc';
+
+export async function getStaticPaths() {
+  const builds = await lireBuilds();
+  return builds.flatMap((build) =>
+    build.sousPages.map((page) => ({ params: { build: build.slug, page: page.slug }, props: { build, page } })),
+  );
+}
+
+interface Props {
+  build: Build;
+  page: Page;
+}
+
+const { build, page } = Astro.props;
+const html = await contenuEnHtml((await page.contenu()).node);
+
+// En bas de page : la sous-page suivante, puis les vidéos, sinon retour à l'accueil du build.
+const index = build.sousPages.findIndex((autre) => autre.slug === page.slug);
+const apres = build.sousPages[index + 1];
+const suite = apres
+  ? { href: `/${build.slug}/${apres.slug}`, surtitre: 'Page suivante', nom: `${apres.titre} →` }
+  : build.videos.length > 0
+    ? { href: `/${build.slug}/${ADRESSE_VIDEOS}`, surtitre: 'Page suivante', nom: 'Vidéos →' }
+    : { href: `/${build.slug}`, surtitre: 'Retour', nom: `← ${build.nom}` };
+---
+
+<Studio
+  titre={`${page.titre} · ${build.nom} · Spriinty’s Studio`}
+  description={page.resume || build.resume || build.type}
+  theme={build.couleurs}
+>
+  <BarreBuild
+    build={build}
+    actif={page.slug}
+    crayon={{
+      chemin: `collection/pages-${build.slug}/item/${page.slug}`,
+      libelle: `Modifier la page ${page.titre}`,
+    }}
+  />
+
+  <header class="conteneur tete">
+    <p class="surtitre tete__build"><a href={`/${build.slug}`}>{build.nom}</a></p>
+    <h1 class="tete__titre">{page.titre}</h1>
+    {page.resume && <p class="tete__resume">{page.resume}</p>}
+  </header>
+
+  <div class="conteneur">
+    {html.trim() ? <div class="prose" set:html={html} /> : <p class="vide">Page en cours d’écriture.</p>}
+  </div>
+
+  <nav class="conteneur suite" aria-label="Suite du build">
+    <a href={suite.href} class="suite__lien">
+      <span class="surtitre">{suite.surtitre}</span>
+      <span class="suite__nom">{suite.nom}</span>
+    </a>
+  </nav>
+</Studio>
+
+<style>
+  .tete {
+    display: grid;
+    gap: 22px;
+    padding-block: 88px 56px;
+  }
+
+  .tete__build a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .tete__build a:hover {
+    color: var(--texte);
+  }
+
+  .tete__titre {
+    margin: 0;
+    font-family: var(--f-titre);
+    font-weight: 900;
+    font-size: clamp(56px, 8vw, 112px);
+    line-height: 1;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+    color: var(--titre-build);
+  }
+
+  .tete__resume {
+    max-width: 760px;
+    margin: 0;
+    font-size: 21px;
+    line-height: 1.55;
+    color: var(--texte);
+  }
+
+  .vide {
+    margin: 0;
+    color: var(--gris);
+  }
+
+  /* Contenu écrit dans l'admin (Markdoc rendu en HTML). */
+  .prose {
+    max-width: 760px;
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--texte-doux);
+  }
+
+  .prose :global(:where(p, ul, ol, blockquote, table)) {
+    margin: 0 0 24px;
+  }
+
+  .prose :global(h2) {
+    margin: 72px 0 20px;
+    font-family: var(--f-titre);
+    font-weight: 800;
+    font-size: clamp(36px, 4.5vw, 52px);
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--texte);
+  }
+
+  .prose :global(h3) {
+    margin: 44px 0 12px;
+    font-family: var(--f-titre);
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--titre-build);
+  }
+
+  .prose :global(:where(h2, h3):first-child) {
+    margin-top: 0;
+  }
+
+  .prose :global(strong) {
+    font-weight: 600;
+    color: var(--texte);
+  }
+
+  .prose :global(a) {
+    color: var(--accent);
+    text-underline-offset: 3px;
+  }
+
+  .prose :global(a:hover) {
+    color: var(--texte);
+  }
+
+  .prose :global(:where(ul, ol)) {
+    padding-left: 1.3em;
+  }
+
+  .prose :global(li + li) {
+    margin-top: 8px;
+  }
+
+  .prose :global(li::marker) {
+    color: var(--accent);
+  }
+
+  .prose :global(blockquote) {
+    margin-inline: 0;
+    padding: 4px 0 4px 24px;
+    border-left: 2px solid var(--accent);
+    font-size: 21px;
+    color: var(--texte);
+  }
+
+  .prose :global(blockquote p) {
+    margin: 0;
+  }
+
+  .prose :global(img) {
+    width: 100%;
+    height: auto;
+    border: 1px solid rgb(255 255 255 / 0.1);
+  }
+
+  .prose :global(hr) {
+    margin-block: 56px;
+    border: 0;
+    border-top: 1px dashed rgb(255 255 255 / 0.2);
+  }
+
+  .prose :global(code) {
+    padding: 2px 6px;
+    background: rgb(255 255 255 / 0.06);
+    font-family: var(--f-mono);
+    font-size: 0.85em;
+  }
+
+  .prose :global(table) {
+    display: block;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: 16px;
+  }
+
+  .prose :global(:where(th, td)) {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgb(255 255 255 / 0.12);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .prose :global(th) {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gris);
+  }
+
+  .suite {
+    padding-block: 72px 112px;
+  }
+
+  .suite__lien {
+    display: inline-grid;
+    gap: 10px;
+    padding-top: 28px;
+    border-top: 1px solid rgb(255 255 255 / 0.16);
+    color: var(--texte);
+    text-decoration: none;
+  }
+
+  .suite__nom {
+    font-family: var(--f-titre);
+    font-weight: 800;
+    font-size: clamp(32px, 4vw, 48px);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .suite__lien:hover .suite__nom {
+    color: var(--accent);
+  }
+
+  @media (max-width: 767px) {
+    .tete {
+      padding-block: 56px 40px;
+    }
+
+    .tete__resume {
+      font-size: 18px;
+    }
+
+    .prose {
+      font-size: 17px;
+    }
+
+    .prose :global(h2) {
+      margin-top: 56px;
+    }
+
+    .suite {
+      padding-block: 48px 72px;
+    }
+  }
+</style>

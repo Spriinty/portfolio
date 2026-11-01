@@ -1,8 +1,9 @@
 ---
 import Studio from '../layouts/Studio.astro';
+import BarreBuild from '../components/BarreBuild.astro';
+import CarteVideo from '../components/CarteVideo.astro';
 import Crayon from '../components/Crayon.astro';
-import Statut from '../components/Statut.astro';
-import { lireBuilds, type Build } from '../lib/contenu';
+import { ADRESSE_VIDEOS, lireBuilds, pagesPrevues, type Build } from '../lib/contenu';
 
 export async function getStaticPaths() {
   const builds = await lireBuilds();
@@ -14,7 +15,8 @@ interface Props {
 }
 
 const { build } = Astro.props;
-const numero = String(build.numero).padStart(2, '0');
+const prevues = pagesPrevues(build);
+const nbVideos = build.videos.length;
 ---
 
 <Studio
@@ -22,16 +24,11 @@ const numero = String(build.numero).padStart(2, '0');
   description={build.resume || build.type}
   theme={build.couleurs}
 >
-  <div class="fil">
-    <div class="conteneur fil__barre">
-      <a href="/#builds">← Tous les builds</a>
-      <span class="fil__statut">
-        Build {numero} ·
-        <Statut choix={build.statut} derniereActivite={build.derniereActivite} />
-        <Crayon chemin={`collection/builds/item/${build.slug}`} libelle={`Modifier ${build.nom}`} />
-      </span>
-    </div>
-  </div>
+  <BarreBuild
+    build={build}
+    actif=""
+    crayon={{ chemin: `collection/builds/item/${build.slug}`, libelle: `Modifier ${build.nom}` }}
+  />
 
   <header class="conteneur tete">
     <div class="tete__gauche">
@@ -59,65 +56,84 @@ const numero = String(build.numero).padStart(2, '0');
     </div>
   </header>
 
-  <section class="conteneur chantier" aria-label="Sous-pages">
-    <div class="chantier__bloc">
-      <p class="surtitre">Atelier en cours</p>
-      <p class="chantier__texte">
-        {
-          build.pages ? (
-            <Fragment>
-              Sous-pages en préparation : <strong>{build.pages}</strong>
-            </Fragment>
-          ) : (
-            'D’autres contenus arrivent bientôt ici.'
-          )
-        }
-      </p>
-    </div>
-  </section>
+  {
+    (build.sousPages.length > 0 || nbVideos > 0) && (
+      <section class="conteneur sommaire" aria-labelledby="sommaire-titre">
+        <div class="sommaire__tete">
+          <h2 class="surtitre" id="sommaire-titre">
+            Dans ce build
+          </h2>
+          <Crayon chemin={`collection/pages-${build.slug}/create`} libelle="Ajouter une page" />
+        </div>
+        <ul class="sommaire__liste">
+          {build.sousPages.map((page) => (
+            <li>
+              <a href={`/${build.slug}/${page.slug}`} class="sommaire__lien">
+                <span class="sommaire__nom">{page.titre}</span>
+                {page.resume && <span class="sommaire__resume">{page.resume}</span>}
+                <span class="sommaire__fleche" aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))}
+          {nbVideos > 0 && (
+            <li>
+              <a href={`/${build.slug}/${ADRESSE_VIDEOS}`} class="sommaire__lien">
+                <span class="sommaire__nom">Vidéos</span>
+                <span class="sommaire__resume">
+                  {nbVideos} {nbVideos > 1 ? 'vidéos' : 'vidéo'}, de la plus récente à la plus ancienne
+                </span>
+                <span class="sommaire__fleche" aria-hidden="true">→</span>
+              </a>
+            </li>
+          )}
+        </ul>
+      </section>
+    )
+  }
+
+  {
+    nbVideos > 0 && (
+      <section class="conteneur dernieres" aria-labelledby="dernieres-titre">
+        <div class="dernieres__tete">
+          <h2 class="titre-section" id="dernieres-titre">
+            Dernières vidéos
+          </h2>
+          {nbVideos > 4 && (
+            <a href={`/${build.slug}/${ADRESSE_VIDEOS}`} class="bouton">
+              Toutes les vidéos →
+            </a>
+          )}
+        </div>
+        <div class="grille-videos">
+          {build.videos.slice(0, 4).map((video) => (
+            <CarteVideo video={video} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    (prevues.length > 0 || (build.sousPages.length === 0 && nbVideos === 0)) && (
+      <section class="conteneur chantier" aria-label="Sous-pages à venir">
+        <div class="chantier__bloc">
+          <p class="surtitre">Atelier en cours</p>
+          <p class="chantier__texte">
+            {prevues.length > 0 ? (
+              <Fragment>
+                Sous-pages en préparation : <strong>{prevues.join(' · ')}</strong>
+              </Fragment>
+            ) : (
+              'D’autres contenus arrivent bientôt ici.'
+            )}
+          </p>
+        </div>
+      </section>
+    )
+  }
 </Studio>
 
 <style>
-  .fil {
-    border-bottom: 1px solid rgb(255 255 255 / 0.08);
-  }
-
-  .fil__barre {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: 4px 16px;
-    min-height: 52px;
-    font-family: var(--f-mono);
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--gris);
-  }
-
-  .fil__barre a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    color: var(--texte);
-    text-decoration: none;
-  }
-
-  .fil__barre a:hover {
-    color: var(--accent);
-  }
-
-  .fil__statut {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .fil__statut :global(.statut) {
-    color: var(--texte);
-  }
-
   .tete {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
@@ -161,8 +177,84 @@ const numero = String(build.numero).padStart(2, '0');
     gap: 12px;
   }
 
+  .sommaire,
+  .dernieres,
   .chantier {
-    padding-bottom: 112px;
+    padding-bottom: 96px;
+  }
+
+  .sommaire__tete {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 40px;
+    margin-bottom: 16px;
+  }
+
+  .sommaire__liste {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sommaire__lien {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-content: start;
+    gap: 10px 16px;
+    height: 100%;
+    padding: 28px;
+    border: 1px solid rgb(255 255 255 / 0.12);
+    color: var(--texte);
+    text-decoration: none;
+    transition:
+      border-color 0.3s,
+      background-color 0.3s;
+  }
+
+  .sommaire__lien:hover {
+    border-color: var(--accent);
+    background: rgb(255 255 255 / 0.03);
+  }
+
+  .sommaire__nom {
+    font-family: var(--f-titre);
+    font-weight: 800;
+    font-size: 34px;
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--titre-build);
+  }
+
+  .sommaire__resume {
+    grid-column: 1;
+    font-size: 16px;
+    color: var(--texte-doux);
+  }
+
+  .sommaire__fleche {
+    grid-column: 2;
+    grid-row: 1;
+    font-family: var(--f-mono);
+    font-size: 18px;
+    color: var(--accent);
+    transition: transform 0.3s;
+  }
+
+  .sommaire__lien:hover .sommaire__fleche {
+    transform: translateX(4px);
+  }
+
+  .dernieres__tete {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: end;
+    gap: 16px 24px;
+    margin-bottom: 32px;
   }
 
   .chantier__bloc {
@@ -192,8 +284,18 @@ const numero = String(build.numero).padStart(2, '0');
       font-size: 17px;
     }
 
+    .sommaire,
+    .dernieres,
     .chantier {
-      padding-bottom: 72px;
+      padding-bottom: 64px;
+    }
+
+    .sommaire__lien {
+      padding: 22px;
+    }
+
+    .sommaire__nom {
+      font-size: 28px;
     }
 
     .chantier__bloc {

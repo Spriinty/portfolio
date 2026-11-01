@@ -10,6 +10,11 @@ interface Props {
 
 const { build } = Astro.props;
 const ou = build.liens.map((lien) => lien.libelle).join(' · ') || 'Bientôt en ligne';
+// Les sous-pages déjà en ligne, sinon celles annoncées dans l'admin.
+const pages =
+  [...build.sousPages.map((page) => page.titre), ...(build.videos.length > 0 ? ['Vidéos'] : [])].join(' · ') ||
+  build.pages ||
+  '—';
 const fond = await imageDeCarte(build.image);
 ---
 
@@ -32,7 +37,7 @@ const fond = await imageDeCarte(build.image);
     <dt>Où</dt>
     <dd>{ou}</dd>
     <dt>Pages</dt>
-    <dd>{build.pages || '—'}</dd>
+    <dd>{pages}</dd>
   </dl>
 </article>
 

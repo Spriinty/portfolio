@@ -1,0 +1,179 @@
+---
+import Studio from '../../layouts/Studio.astro';
+import BarreBuild from '../../components/BarreBuild.astro';
+import CarteVideo from '../../components/CarteVideo.astro';
+import Crayon from '../../components/Crayon.astro';
+import { ADRESSE_VIDEOS, lireBuilds, type Build, type Plateforme } from '../../lib/contenu';
+import { PLATEFORMES } from '../../lib/videos';
+
+export async function getStaticPaths() {
+  const builds = await lireBuilds();
+  return builds.filter((build) => build.videos.length > 0).map((build) => ({ params: { build: build.slug }, props: { build } }));
+}
+
+interface Props {
+  build: Build;
+}
+
+const { build } = Astro.props;
+const total = build.videos.length;
+const filtres = (Object.keys(PLATEFORMES) as Plateforme[])
+  .map((plateforme) => ({
+    plateforme,
+    nombre: build.videos.filter((video) => video.liens.some((lien) => lien.plateforme === plateforme)).length,
+  }))
+  .filter((filtre) => filtre.nombre > 0);
+---
+
+<Studio
+  titre={`Vidéos · ${build.nom} · Spriinty’s Studio`}
+  description={`Les vidéos de ${build.nom} : ${filtres.map((f) => PLATEFORMES[f.plateforme].nom).join(', ')}.`}
+  theme={build.couleurs}
+>
+  <BarreBuild
+    build={build}
+    actif={ADRESSE_VIDEOS}
+    crayon={{ chemin: 'collection/videos/create', libelle: 'Ajouter une vidéo' }}
+  />
+
+  <header class="conteneur tete">
+    <p class="surtitre tete__build"><a href={`/${build.slug}`}>{build.nom}</a></p>
+    <h1 class="tete__titre">Vidéos</h1>
+    <p class="tete__resume">
+      {`${total} ${total > 1 ? 'vidéos' : 'vidéo'}, de la plus récente à la plus ancienne.`}
+    </p>
+  </header>
+
+  <section class="conteneur liste" aria-label="Vidéos">
+    {
+      filtres.length > 1 && (
+        <div class="filtres" role="group" aria-label="Filtrer par plateforme">
+          <button type="button" class="filtre" data-filtre="" aria-pressed="true">
+            Toutes <span>{total}</span>
+          </button>
+          {filtres.map((filtre) => (
+            <button type="button" class="filtre" data-filtre={filtre.plateforme} aria-pressed="false">
+              {PLATEFORMES[filtre.plateforme].nom} <span>{filtre.nombre}</span>
+            </button>
+          ))}
+        </div>
+      )
+    }
+    <div class="grille-videos">
+      {build.videos.map((video) => <CarteVideo video={video} />)}
+    </div>
+  </section>
+
+  <p class="sr-only" aria-live="polite" data-annonce></p>
+</Studio>
+
+<style>
+  .tete {
+    display: grid;
+    gap: 22px;
+    padding-block: 88px 48px;
+  }
+
+  .tete__build a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .tete__build a:hover {
+    color: var(--texte);
+  }
+
+  .tete__titre {
+    margin: 0;
+    font-family: var(--f-titre);
+    font-weight: 900;
+    font-size: clamp(56px, 8vw, 112px);
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--titre-build);
+  }
+
+  .tete__resume {
+    margin: 0;
+    font-size: 19px;
+    color: var(--texte-doux);
+  }
+
+  .liste {
+    padding-bottom: 112px;
+  }
+
+  .filtres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .filtre {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1px solid rgb(255 255 255 / 0.16);
+    background: transparent;
+    color: var(--texte);
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .filtre span {
+    color: var(--gris);
+  }
+
+  .filtre:hover {
+    border-color: var(--accent);
+  }
+
+  .filtre[aria-pressed='true'] {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--noir);
+  }
+
+  .filtre[aria-pressed='true'] span {
+    color: inherit;
+  }
+
+  @media (max-width: 767px) {
+    .tete {
+      padding-block: 56px 32px;
+    }
+
+    .tete__resume {
+      font-size: 17px;
+    }
+
+    .liste {
+      padding-bottom: 72px;
+    }
+  }
+</style>
+
+<script>
+  const boutons = document.querySelectorAll<HTMLButtonElement>('[data-filtre]');
+  const cartes = document.querySelectorAll<HTMLElement>('[data-plateformes]');
+  const annonce = document.querySelector('[data-annonce]');
+
+  boutons.forEach((bouton) => {
+    bouton.addEventListener('click', () => {
+      const filtre = bouton.dataset.filtre;
+      boutons.forEach((autre) => autre.setAttribute('aria-pressed', String(autre === bouton)));
+      let visibles = 0;
+      cartes.forEach((carte) => {
+        carte.hidden = !!filtre && !carte.dataset.plateformes?.split(' ').includes(filtre);
+        if (!carte.hidden) visibles++;
+      });
+      if (annonce) annonce.textContent = `${visibles} ${visibles > 1 ? 'vidéos affichées' : 'vidéo affichée'}`;
+    });
+  });
+</script>

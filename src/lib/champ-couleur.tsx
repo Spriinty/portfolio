@@ -3,6 +3,7 @@ import { fields, type FormFieldInputProps } from '@keystatic/core';
 import { Flex } from '@keystar/ui/layout';
 import { TextField } from '@keystar/ui/text-field';
 import { Text } from '@keystar/ui/typography';
+import { FICHIERS_BUILDS } from './fichiers-builds';
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
 
@@ -16,14 +17,7 @@ const STUDIO = [
   { hex: '#E3B04B', nom: 'Studio (au ralenti)' },
 ];
 
-// Couleurs déjà en place dans les builds, lues dans leurs fichiers au moment du build du site :
-// un build enregistré dans l'admin apparaît ici après le redéploiement qui suit.
-const fichiers = import.meta.glob<string>('/src/content/builds/*.yaml', {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-});
-
+// Couleurs déjà en place dans les builds, lues dans leurs fichiers au moment du build du site.
 function couleursUtilisees() {
   const noms = new Map<string, string[]>();
   const ajouter = (hex: string, nom: string) => {
@@ -33,8 +27,7 @@ function couleursUtilisees() {
     noms.set(cle, liste);
   };
   for (const { hex, nom } of STUDIO) ajouter(hex, nom);
-  for (const texte of Object.values(fichiers)) {
-    const nom = /^nom: (.+)$/m.exec(texte)?.[1]?.trim() ?? 'Build';
+  for (const { nom, texte } of FICHIERS_BUILDS) {
     for (const [hex] of texte.matchAll(/#[0-9a-fA-F]{6}/g)) ajouter(hex, nom);
   }
   return [...noms].map(([hex, utilisateurs]) => ({ hex, utilisateurs }));

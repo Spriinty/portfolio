@@ -1,0 +1,132 @@
+---
+import Crayon from './Crayon.astro';
+import Statut from './Statut.astro';
+import { ADRESSE_VIDEOS, type Build } from '../lib/contenu';
+
+interface Props {
+  build: Build;
+  /** Rubrique affichée : '' pour l'accueil du build, sinon l'adresse de la sous-page. */
+  actif: string;
+  /** Page de l'admin ouverte par le crayon. */
+  crayon: { chemin: string; libelle: string };
+}
+
+const { build, actif, crayon } = Astro.props;
+const rubriques = [
+  { adresse: '', titre: 'Accueil' },
+  ...build.sousPages.map((page) => ({ adresse: page.slug, titre: page.titre })),
+  ...(build.videos.length > 0 ? [{ adresse: ADRESSE_VIDEOS, titre: 'Vidéos' }] : []),
+];
+---
+
+<div class="fil">
+  <div class="conteneur fil__barre">
+    <a href="/#builds">← Tous les builds</a>
+    <span class="fil__statut">
+      Build {String(build.numero).padStart(2, '0')} ·
+      <Statut choix={build.statut} derniereActivite={build.derniereActivite} />
+      <Crayon chemin={crayon.chemin} libelle={crayon.libelle} />
+    </span>
+  </div>
+</div>
+
+{
+  rubriques.length > 1 && (
+    <nav class="rubriques" aria-label={`Pages de ${build.nom}`}>
+      <ul class="conteneur rubriques__liste">
+        {rubriques.map((rubrique) => (
+          <li>
+            <a
+              href={`/${build.slug}${rubrique.adresse && `/${rubrique.adresse}`}`}
+              aria-current={rubrique.adresse === actif ? 'page' : undefined}
+            >
+              {rubrique.titre}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
+<style>
+  .fil,
+  .rubriques {
+    border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  }
+
+  .fil__barre {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px 16px;
+    min-height: 52px;
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gris);
+  }
+
+  .fil__barre a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--texte);
+    text-decoration: none;
+  }
+
+  .fil__barre a:hover {
+    color: var(--accent);
+  }
+
+  .fil__statut {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .fil__statut :global(.statut) {
+    color: var(--texte);
+  }
+
+  /* Sur téléphone, les onglets défilent à l'horizontale plutôt que de passer à la ligne. */
+  .rubriques__liste {
+    display: flex;
+    gap: 32px;
+    margin-block: 0;
+    list-style: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .rubriques__liste a {
+    display: flex;
+    align-items: center;
+    min-height: 52px;
+    border-bottom: 2px solid transparent;
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--gris);
+    text-decoration: none;
+  }
+
+  .rubriques__liste a:hover {
+    color: var(--texte);
+  }
+
+  .rubriques__liste a[aria-current='page'] {
+    border-bottom-color: var(--accent);
+    color: var(--texte);
+  }
+
+  @media (max-width: 767px) {
+    .rubriques__liste {
+      gap: 24px;
+    }
+  }
+</style>
