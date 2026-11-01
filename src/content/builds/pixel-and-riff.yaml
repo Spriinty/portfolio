@@ -2,10 +2,10 @@ nom: Pixel&Riff
 numero: 2
 visible: true
 type: Contenu vidéo
-resume: >-
-  Nouveau projet vidéo, bientôt sur YouTube, Instagram, Facebook et TikTok.
+resume: Nouveau projet vidéo, bientôt sur YouTube, Instagram, Facebook et TikTok.
+image: /src/assets/builds/pixel-and-riff/image.png
 statut: auto
-derniereActivite: '2026-10-17'
+derniereActivite: 2026-10-17
 couleurs:
   titre: '#8FD3C8'
   fond: '#0E1716'
