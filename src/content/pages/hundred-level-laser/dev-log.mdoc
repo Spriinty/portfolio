@@ -75,7 +75,9 @@ Le projet repart sur une vraie stack : [Phaser 3](https://phaser.io/) pour le mo
 
 ### 4 juin 2026 — Détour par la 3D avec Godot
 
-Un essai de portage en 3D sous [Godot](https://godotengine.org/fr/) 4.6, en GDScript (environ 1 400 lignes), cadré pour le mobile en portrait (720 × 1280) avec le moteur physique [Jolt](https://jrouwe.github.io/JoltPhysics/). Il reprend les mêmes règles mais reste à l'état de prototype : la suite du travail revient sur la V2.
+Un essai de portage en 3D sous [Godot](https://godotengine.org/fr/) 4.6, en GDScript (environ 1 400 lignes), cadré pour le mobile en portrait (720 × 1280) avec le moteur physique [Jolt](https://jrouwe.github.io/JoltPhysics/). Il reprend les mêmes règles mais reste à l'état de prototype : la suite du travail revient sur la V2.\
+\
+![](/src/assets/pages/hundred-level-laser/dev-log/Capture%20d'%C3%A9cran%202026-11-01%20213102.png)![](/src/assets/pages/hundred-level-laser/dev-log/Capture%20d'%C3%A9cran%202026-11-01%20212703.png)
 
 ### 16 septembre 2026 — Le jeu arrive sur téléphone
 
@@ -114,6 +116,8 @@ Le soir arrivent des téléporteurs liés dès le niveau 11, que les ennemis emp
 Dix commits dans la journée pour passer de « jouable » à « publiable » : six effets sonores, un écran de chargement, la police rétro VT323 (qui gère les accents) et une roue de saisie du pseudo façon borne d'arcade. Les menus deviennent entièrement navigables au clavier et à la manette, et les touches ZQSD sont ajoutées pour les claviers AZERTY.
 
 La soirée passe sur la mise en ligne, dont les pièges sont détaillés plus bas. Le jeu est publié le soir même sur [itch.io](https://spriinty.itch.io/hundred-level-laser).
+
+![](/src/assets/pages/hundred-level-laser/dev-log/Capture%20d'%C3%A9cran%202026-11-01%20212330.png)
 
 ## Sous le capot
 
@@ -216,4 +220,3 @@ Le jeu est complet et a reçu cinq passes d'équilibrage ; les pistes restantes 
 - Un classement en ligne : les scores vivent aujourd'hui dans le navigateur de chaque joueur. Une table Supabase suffirait, avec une validation côté serveur pour éviter les scores falsifiés.
 - Un multiplicateur de score mérité, par exemple une série de tirs sans rater, pour remplacer l'ancien bonus ×2.
 - Un bug jamais reproduit, un ennemi qui explose seul, vu deux fois : chaque destruction est désormais journalisée avec sa cause pour le coincer.
-- Le plein écran depuis la manette, probablement refusé par les navigateurs sans geste de l'utilisateur : à vérifier.
