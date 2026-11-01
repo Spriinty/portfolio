@@ -5,8 +5,9 @@ type: Lutherie · restauration
 resume: >-
   Rendre jouable ce qui a vécu. Abaisser l’action, refaire les frettes, changer
   les micros, reprendre l’électronique, sans dénaturer l’instrument.
+image: /src/assets/builds/comeback-guitar-lab/image.png
 statut: auto
-derniereActivite: '2026-10-17'
+derniereActivite: 2026-10-17
 couleurs:
   titre: '#E9B27A'
   fond: '#15100C'
