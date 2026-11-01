@@ -1,0 +1,22 @@
+nom: LSS
+numero: 6
+visible: true
+type: Jeu vidéo
+resume: >-
+  Jeu vidéo 3D de shooter spatial. Basé sur Godot Engine et réalisé en C#. Mise
+  à l'épreuve de Claude sur du rendu 3D directement pour générer vaisseaux et
+  environnements. Exploration et combats spatiaux, bases planétaires et combats
+  au sol, c'est actuellement mon plus gros chantier. Le nom complet sera dévoilé
+  en temps voulu, le travail est constant et quasi hebdomadaire sur ce projet
+  pour espérer un déploiement futur sur Steam. Les technologies utilisées ont
+  été pensées dès le début pour répondre au besoins d'un joueur PC ou d'un
+  joueur sur SteamDeck. Une version LAN/Multi a été imaginée dès le début pour
+  pouvoir jouer avec entre utilisateurs.
+image: /src/assets/builds/lss/image.jpg
+statut: auto
+derniereActivite: 2026-11-01
+couleurs:
+  titre: '#000000'
+  fond: '#000000'
+  accent: '#000000'
+liens: []
