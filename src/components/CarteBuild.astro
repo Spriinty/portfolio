@@ -1,4 +1,5 @@
 ---
+import Crayon from './Crayon.astro';
 import Statut from './Statut.astro';
 import type { Build } from '../lib/contenu';
 import { imageDeCarte } from '../lib/images';
@@ -12,13 +13,19 @@ const ou = build.liens.map((lien) => lien.libelle).join(' · ') || 'Bientôt en 
 const fond = await imageDeCarte(build.image);
 ---
 
-<a href={`/${build.slug}`} class="carte" style={`--titre-build: ${build.couleurs.titre}`}>
+<!-- Le lien du titre couvre toute la carte (::after) ; le crayon passe au-dessus. -->
+<article class="carte" style={`--titre-build: ${build.couleurs.titre}`}>
   {fond && <img src={fond.src} alt="" class="carte__fond" loading="lazy" decoding="async" />}
   <div class="carte__haut">
     <span>Build {String(build.numero).padStart(2, '0')}</span>
-    <Statut choix={build.statut} derniereActivite={build.derniereActivite} />
+    <span class="carte__etat">
+      <Crayon chemin={`collection/builds/item/${build.slug}`} libelle={`Modifier ${build.nom}`} />
+      <Statut choix={build.statut} derniereActivite={build.derniereActivite} />
+    </span>
   </div>
-  <h3 class="carte__nom">{build.nom}</h3>
+  <h3 class="carte__nom">
+    <a href={`/${build.slug}`} class="carte__lien">{build.nom}</a>
+  </h3>
   <dl class="carte__fiche">
     <dt>Type</dt>
     <dd>{build.type || '—'}</dd>
@@ -27,7 +34,7 @@ const fond = await imageDeCarte(build.image);
     <dt>Pages</dt>
     <dd>{build.pages || '—'}</dd>
   </dl>
-</a>
+</article>
 
 <style>
   .carte {
@@ -73,7 +80,7 @@ const fond = await imageDeCarte(build.image);
   }
 
   .carte:hover .carte__fond,
-  .carte:focus-visible .carte__fond {
+  .carte:focus-within .carte__fond {
     opacity: 0.18;
     transform: scale(1);
   }
@@ -110,6 +117,33 @@ const fond = await imageDeCarte(build.image);
 
   .carte__haut :global(.statut) {
     color: var(--texte);
+  }
+
+  .carte__etat {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .carte__lien {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .carte__lien::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .carte__lien:focus-visible {
+    outline: none;
+  }
+
+  .carte:has(.carte__lien:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
   }
 
   .carte__nom {

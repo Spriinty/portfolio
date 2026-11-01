@@ -4,23 +4,9 @@ import react from '@astrojs/react';
 import keystatic from '@keystatic/astro';
 import vercel from '@astrojs/vercel';
 
-// En stockage local, l'API de Keystatic n'a aucune protection : l'admin n'est ajoutée qu'avec
-// `astro dev`, jamais au build de production. À remplacer par `keystatic()` une fois le
-// stockage GitHub configuré (connexion obligatoire avec un compte ayant accès au repo).
-function keystaticEnDevSeulement() {
-  const integration = keystatic();
-  return {
-    name: 'keystatic-en-dev-seulement',
-    hooks: {
-      /** @param {Parameters<typeof integration.hooks['astro:config:setup']>[0]} options */
-      'astro:config:setup': (options) => {
-        if (options.command === 'dev') integration.hooks['astro:config:setup'](options);
-      },
-    },
-  };
-}
-
+// L'admin (/keystatic) est déployée : en ligne elle passe par GitHub et exige une connexion
+// avec un compte ayant accès au repo (voir src/lib/admin.ts).
 export default defineConfig({
-  integrations: [react(), keystaticEnDevSeulement()],
+  integrations: [react(), keystatic()],
   adapter: vercel(),
 });

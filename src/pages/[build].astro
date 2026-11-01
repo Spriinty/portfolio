@@ -1,5 +1,6 @@
 ---
 import Studio from '../layouts/Studio.astro';
+import Crayon from '../components/Crayon.astro';
 import Statut from '../components/Statut.astro';
 import { lireBuilds, type Build } from '../lib/contenu';
 
@@ -27,6 +28,7 @@ const numero = String(build.numero).padStart(2, '0');
       <span class="fil__statut">
         Build {numero} ·
         <Statut choix={build.statut} derniereActivite={build.derniereActivite} />
+        <Crayon chemin={`collection/builds/item/${build.slug}`} libelle={`Modifier ${build.nom}`} />
       </span>
     </div>
   </div>

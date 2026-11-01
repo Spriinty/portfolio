@@ -1,4 +1,5 @@
 import { collection, config, fields, singleton } from '@keystatic/core';
+import { ADMIN_GITHUB, REPO } from './src/lib/admin';
 import { SEUILS } from './src/lib/statut';
 
 const couleur = (label: string, description?: string) =>
@@ -12,7 +13,7 @@ const couleur = (label: string, description?: string) =>
   });
 
 export default config({
-  storage: { kind: 'local' },
+  storage: ADMIN_GITHUB ? { kind: 'github', repo: REPO } : { kind: 'local' },
   ui: { brand: { name: 'Spriinty’s Studio' } },
 
   singletons: {

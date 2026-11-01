@@ -1,0 +1,63 @@
+---
+// Raccourci vers l'admin, visible seulement en dev ou quand Quentin est connecté à l'admin en ligne.
+// Ce n'est qu'un lien : c'est l'admin qui vérifie la connexion GitHub.
+import { ADMIN_GITHUB, lienAdmin } from '../lib/admin';
+
+interface Props {
+  /** Page de l'admin, par exemple `collection/builds/item/workmi`. */
+  chemin: string;
+  libelle: string;
+}
+
+const { chemin, libelle } = Astro.props;
+---
+
+<a
+  href={lienAdmin(chemin)}
+  class="crayon"
+  data-crayon
+  data-admin-local={ADMIN_GITHUB ? undefined : ''}
+  aria-label={libelle}
+  title={libelle}
+  hidden
+>
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path
+      d="M10.5 2.5l3 3L5 14H2v-3l8.5-8.5zM9 4l3 3"
+      stroke="currentColor"
+      stroke-width="1.4"
+      stroke-linejoin="round"></path>
+  </svg>
+</a>
+
+<style>
+  .crayon {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--bord);
+    background: var(--noir-profond);
+    color: var(--texte);
+  }
+
+  .crayon[hidden] {
+    display: none;
+  }
+
+  .crayon:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+</style>
+
+<script>
+  // Le cookie d'accès de l'admin GitHub est lisible par les pages et dure environ 8 h.
+  const connecte = document.cookie.split('; ').some((c) => c.startsWith('keystatic-gh-access-token='));
+  document.querySelectorAll<HTMLElement>('[data-crayon]').forEach((crayon) => {
+    if (connecte || 'adminLocal' in crayon.dataset) crayon.hidden = false;
+  });
+</script>
