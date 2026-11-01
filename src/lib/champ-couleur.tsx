@@ -72,7 +72,13 @@ function ChampCouleur({
         : `${label} est obligatoire`
       : undefined;
   const suggestions = PALETTE.filter((c) => (ton === 'sombre' ? estSombre(c.hex) : !estSombre(c.hex)));
-  const fondTropClair = ton === 'sombre' && valide && !estSombre(value);
+  const alerte = !valide
+    ? undefined
+    : ton === 'sombre' && !estSombre(value)
+      ? 'Attention : ce fond est clair. Le texte du site reste clair, il serait peu lisible.'
+      : ton === 'vive' && estSombre(value)
+        ? 'Attention : cette couleur est très sombre. Sur les fonds sombres du site, elle serait presque invisible.'
+        : undefined;
 
   return (
     <Flex direction="column" gap="regular">
@@ -133,9 +139,9 @@ function ChampCouleur({
           );
         })}
       </Flex>
-      {fondTropClair && (
+      {alerte && (
         <Text size="small" color="neutralSecondary">
-          Attention : ce fond est clair. Le texte du site reste clair, il serait peu lisible.
+          {alerte}
         </Text>
       )}
     </Flex>

@@ -94,9 +94,9 @@ export default config({
         }),
         couleurs: fields.object(
           {
-            titre: couleur('Titre', 'Nom du build sur la carte et sur sa page', 'vive'),
-            fond: couleur('Fond de la page', 'Couleur sombre : le texte reste clair', 'sombre'),
-            accent: couleur('Accent', 'Boutons et détails de la page', 'vive'),
+            titre: couleur('Couleur du titre', 'Couleur du nom du build, sur sa carte et sur sa page', 'vive'),
+            fond: couleur('Couleur de fond', 'Fond de la page du build : une teinte sombre, le texte reste clair', 'sombre'),
+            accent: couleur("Couleur d'accent", 'Boutons et détails de la page du build', 'vive'),
           },
           { label: 'Couleurs' },
         ),

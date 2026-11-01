@@ -1,6 +1,9 @@
 import {
   siAstro,
+  siBlender,
   siClaude,
+  siDotnet,
+  siElevenlabs,
   siGithub,
   siGithubpages,
   siGodotengine,
@@ -13,6 +16,8 @@ import {
   siPrisma,
   siReact,
   siResend,
+  siSteam,
+  siSteamdeck,
   siStripe,
   siSupabase,
   siTailwindcss,
@@ -25,8 +30,9 @@ import {
 } from 'simple-icons';
 
 // Nom tel qu'écrit dans « Fabriqué avec » (en minuscules) → logo Simple Icons (licence CC0).
-// Un outil absent de cette table n'a pas de logo dans l'animation : Keystatic, Phaser et Google Labs
-// n'existent pas dans Simple Icons, et leur « Canvas » est un logiciel scolaire, pas le canvas HTML.
+// Un outil absent de cette table n'a pas de logo dans l'animation : Keystatic, Phaser, Google Labs,
+// Google Flow, CapCut et C# n'existent pas dans Simple Icons, et leur « Canvas » est un logiciel
+// scolaire, pas le canvas HTML.
 const LOGOS: Record<string, SimpleIcon> = {
   claude: siClaude,
   'claude code': siClaude,
@@ -52,6 +58,13 @@ const LOGOS: Record<string, SimpleIcon> = {
   github: siGithub,
   'github pages': siGithubpages,
   'itch.io': siItchdotio,
+  '.net': siDotnet,
+  blender: siBlender,
+  elevenlabs: siElevenlabs,
+  'eleven labs': siElevenlabs,
+  steam: siSteam,
+  'steam deck': siSteamdeck,
+  steamdeck: siSteamdeck,
 };
 
 /** Logos des outils listés dans « Fabriqué avec », sans doublon (Claude et Claude Code partagent le leur). */
