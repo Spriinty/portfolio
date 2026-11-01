@@ -7,8 +7,9 @@ resume: >-
   workmi.pro/s/sa-boutique, avec ses sections, ses photos, ses produits ou
   services et un système de réservation. Pas de paiement en ligne : le but est
   d’amener les clients en magasin.
+image: /src/assets/builds/workmi/image.png
 statut: auto
-derniereActivite: '2026-10-10'
+derniereActivite: 2026-10-10
 couleurs:
   titre: '#A9A2FF'
   fond: '#12111F'
