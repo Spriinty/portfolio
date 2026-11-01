@@ -1,16 +1,7 @@
 import { collection, config, fields, singleton } from '@keystatic/core';
 import { ADMIN_GITHUB, REPO } from './src/lib/admin';
+import { couleur } from './src/lib/champ-couleur';
 import { SEUILS } from './src/lib/statut';
-
-const couleur = (label: string, description?: string) =>
-  fields.text({
-    label,
-    description,
-    validation: {
-      isRequired: true,
-      pattern: { regex: /^#[0-9a-fA-F]{6}$/, message: 'Format attendu : #RRGGBB' },
-    },
-  });
 
 export default config({
   storage: ADMIN_GITHUB ? { kind: 'github', repo: REPO } : { kind: 'local' },
@@ -103,9 +94,9 @@ export default config({
         }),
         couleurs: fields.object(
           {
-            titre: couleur('Titre', 'Nom du build sur la carte et sur sa page'),
-            fond: couleur('Fond de la page', 'Couleur sombre : le texte reste clair'),
-            accent: couleur('Accent', 'Boutons et détails de la page'),
+            titre: couleur('Titre', 'Nom du build sur la carte et sur sa page', 'vive'),
+            fond: couleur('Fond de la page', 'Couleur sombre : le texte reste clair', 'sombre'),
+            accent: couleur('Accent', 'Boutons et détails de la page', 'vive'),
           },
           { label: 'Couleurs' },
         ),
