@@ -1,0 +1,56 @@
+---
+titre: Présentation
+visible: true
+ordre: 1
+resume: Présentation du site workmi.pro, dédié aux professionnels
+---
+**La page vitrine des commerçants locaux, pensée pour faire venir les clients en boutique.**
+
+*Projet personnel · Conception, design, développement et lancement · 2025 - 2026*\
+[workmi.pro](https://workmi.pro) · [Voir la démo](https://www.workmi.pro/demo)
+
+### Le point de départ
+
+Tout part d’un magasin de musique près de chez moi. Une vraie boutique, avec du stock, du conseil et des passionnés derrière le comptoir, mais un site vieillissant et une fiche Google incomplète. En ligne, on ne voyait presque rien de ce qu’elle avait à offrir. Ce magasin a fini par fermer.
+
+Ce n’est pas un cas isolé. Beaucoup de commerçants indépendants ont tout ce qu’il faut en magasin, mais restent invisibles au moment où le client cherche sur son téléphone. Ils n’ont ni le temps, ni l’envie de se lancer dans un site e-commerce, et ce n’est souvent pas ce dont ils ont besoin.
+
+### L’idée
+
+Workmi ne cherche pas à vendre en ligne à la place du commerçant. Il l’aide à **montrer ce qu’il a, et à donner envie de passer la porte.**
+
+En quelques minutes, un commerçant crée sa page vitrine : il présente sa boutique, ses produits ou ses services, choisit un thème à ses couleurs, et propose à ses clients de réserver un créneau en magasin (un essai, un conseil, un rendez-vous). Le client arrive informé et motivé ; le commerçant sait qui vient et pourquoi.
+
+J’ai fait le choix de parler de **« page vitrine »** plutôt que de « site » : chaque commerce dispose de sa propre adresse en sous-domaine de workmi.pro, prête à partager sur Google, Instagram ou en QR code au comptoir ou en salon/évènement.\
+\
+![](/src/assets/pages/workmi/presentation/Capture%20d'%C3%A9cran%202026-11-01%20205016.png)
+
+### Les fonctionnalités
+
+La page vitrine permet de présenter la boutique avec des sections personnalisables et des thèmes de couleurs, de mettre en avant des produits ou des services sans vente en ligne, et de proposer un système de réservation basé sur les horaires réels du magasin. Un même compte peut gérer plusieurs boutiques, avec une page par ville (par exemple /besancon, /dijon), ce qui répond aux petites enseignes qui ont plusieurs points de vente. Le site intègre aussi un blog avec un éditeur en Markdown, que j’utilise pour publier des conseils concrets à destination des commerçants.
+
+### La démo : Wood & Tone
+
+Pour montrer le produit plutôt que l’expliquer, j’ai créé une boutique fictive pour un magasin de guitares : [**Wood & Tone**](https://www.workmi.pro/s/wood-tone-guitares-instruments-dexception). On y retrouve les sections de présentation, un catalogue d’instruments et un système de réservation d’essai calé sur les horaires d’ouverture. C’est la démo que je montre en premier, parce qu’un commerçant se projette immédiatement.\
+\
+![](/src/assets/pages/workmi/presentation/Capture%20d'%C3%A9cran%202026-11-01%20205058.png)
+
+### L’identité visuelle
+
+Je voulais une marque simple, moderne et rassurante, loin des codes « startup tech » qui peuvent intimider un commerçant. Le logo associe « Work » en foncé et « mi » en violet, avec une icône carrée arrondie en dégradé bleu-violet portant un éclair blanc : l’idée de rapidité et de simplicité. La palette repose sur un bleu profond (`#1d4ed8`) et un violet (`#4f46e5`).
+
+### Sous le capot
+
+Workmi est développé avec **Claude Code** (les prémices avaient été commencés avec Codex mais mal adapté à ce projet, la mémoire quasi instantanée de Claude était  bien plus adaptée et presque obligatoire), sur une stack **Vercel + Supabase** (authentification, base de données, stockage). Au-delà du produit lui-même, j’ai construit les outils pour le faire connaître : un système de prospection automatisé (workmi-prospect) qui tourne chaque matin de semaine via GitHub Actions, avec ses réglages stockés dans Supabase, et un **Diagnostic Visibilité** interactif : neuf questions (fiche Google, photos, avis, horaires, site mobile…), un score sur 100 et des constats point par point, utilisable sur tablette en boutique ou depuis un lien partagé.
+
+### Aller chercher les premiers clients
+
+C’est la partie la plus formatrice du projet. Construire un outil, je savais faire... Trouver ses premiers utilisateurs sans réseau, depuis la campagne, c’est un autre métier. J’ai testé les groupes d’entrepreneurs, les communautés de type IndieHackers, la publicité Facebook ciblée sur les magasins de guitares, la prospection par niche avec des démos personnalisées, et la création de contenu sur [TikTok](https://www.tiktok.com/@workmi.pro), d’où sont venus les premiers inscrits.
+
+En échangeant avec des commerçants, j’ai compris que leur vrai frein n’est pas l’outil, mais le **temps**. D’où l’évolution de Workmi vers une offre plus large : la page vitrine en autonomie pour ceux qui veulent la gérer eux-mêmes, et un accompagnement « on le fait pour vous » pour les autres (remise à niveau de la fiche Google, QR code pour les avis, suivi régulier).
+
+### Ce que ce projet m’a appris
+
+Workmi m’a fait passer de « développeur de mon propre outil » à porteur de projet complet : concevoir un produit, lui donner une identité, le mettre en ligne, l’automatiser, puis l’expliquer à des gens qui n’ont rien demandé. J’ai appris à écouter avant de coder, à cibler un métier précis plutôt que tout le monde, et à faire évoluer une offre en fonction des retours du terrain.
+
+Le projet continue, avec une conviction intacte : **les commerces de quartier méritent d’être aussi visibles en ligne qu’ils sont précieux dans la rue.**
