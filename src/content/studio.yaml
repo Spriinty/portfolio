@@ -26,9 +26,7 @@ atelier:
     - groupe: Données et services
       outils: Supabase, Prisma, PostgreSQL, Stripe, Resend, Node.js
     - groupe: Jeu et animation
-      outils: >-
-        Phaser, WebGL, Canvas, Vite, Godot, Steam, Steam Deck, ElevenLabs, .NET,
-        Blender
+      outils: Phaser, WebGL, Canvas, Vite, Godot, ElevenLabs, .NET, Blender
     - groupe: CMS et hébergement
       outils: WordPress, PHP, Vercel, GitHub Pages, itch.io
 liens:

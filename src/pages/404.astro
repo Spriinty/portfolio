@@ -1,0 +1,64 @@
+---
+import Studio from '../layouts/Studio.astro';
+---
+
+<Studio titre="Page introuvable · Spriinty’s Studio" description="Cette page n’existe pas, ou plus.">
+  <section class="conteneur introuvable">
+    <p class="surtitre">Sc. 404 · Ext. Nulle part — Nuit</p>
+    <h1 class="introuvable__titre">Ce build n’existe pas… encore.</h1>
+    <p class="introuvable__texte">
+      La page a peut-être changé d’adresse, ou elle est toujours sur l’établi.
+    </p>
+    <div class="introuvable__liens">
+      <a href="/" class="bouton bouton--accent">Retour au studio</a>
+      <a href="/#builds" class="bouton">Voir les builds</a>
+    </div>
+  </section>
+</Studio>
+
+<style>
+  .introuvable {
+    display: grid;
+    justify-items: start;
+    gap: 24px;
+    padding-block: 120px 140px;
+  }
+
+  .introuvable .surtitre {
+    color: var(--accent);
+  }
+
+  .introuvable__titre {
+    max-width: 14ch;
+    margin: 0;
+    font-family: var(--f-titre);
+    font-weight: 900;
+    font-size: clamp(56px, 9vw, 120px);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .introuvable__texte {
+    max-width: 52ch;
+    margin: 0;
+    font-size: 19px;
+    color: var(--texte-doux);
+  }
+
+  .introuvable__liens {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  @media (max-width: 767px) {
+    .introuvable {
+      padding-block: 72px 96px;
+    }
+
+    .introuvable__texte {
+      font-size: 17px;
+    }
+  }
+</style>

@@ -20,6 +20,8 @@ const { titre, description, theme, image } = Astro.props;
 // Les moteurs de recherche coupent vers 160 caractères : on coupe nous-mêmes, sur un mot entier.
 const resume = description.length > 160 ? `${description.slice(0, 157).replace(/\s+\S*$/, '')}…` : description;
 const apercu = image && new URL(image, Astro.site ?? Astro.url).href;
+// Adresse de référence, sans barre oblique finale comme les liens du site (le sitemap utilise la même).
+const canonique = new URL(Astro.url.pathname.replace(/(.)\/$/, '$1'), Astro.site ?? Astro.url).href;
 const studio = await lireStudio();
 const style = theme
   ? `--fond: ${theme.fond}; --accent: ${theme.accent}; --titre-build: ${theme.titre};`
@@ -34,10 +36,14 @@ const style = theme
     <title>{titre}</title>
     <meta name="description" content={resume} />
     <meta name="theme-color" content="#050506" />
+    <link rel="canonical" href={canonique} />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={titre} />
     <meta property="og:description" content={resume} />
+    <meta property="og:url" content={canonique} />
     {apercu && <meta property="og:image" content={apercu} />}
     {apercu && <meta property="og:image:width" content="1200" />}
     {apercu && <meta property="og:image:height" content="630" />}
