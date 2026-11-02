@@ -12,6 +12,8 @@ resume: >-
 
 Chaque jeu fait passer un message sur le métier de l'entreprise : trier les épaves, réemployer les pièces, recycler l'acier. En fin de partie, le joueur voit une estimation du CO₂ évité grâce à son action.
 
+![](/src/assets/pages/jaquauto-arcade/dev-log/Capture%20d'%C3%A9cran%202026-11-02%20092316.png)
+
 {% table %}
 - 
 - 
@@ -43,7 +45,7 @@ Le site est entièrement statique : les jeux tournent dans le navigateur, et Sup
 - **Hébergement** : Vercel, déployé automatiquement à chaque push sur GitHub.
 - **Données** : Supabase (Postgres, règles d'accès RLS, authentification). Quatre tables : `scores`, `contacts`, `admins` et `game_sessions`.
 
-![](/src/assets/pages/jaquauto-arcade/dev-log/Capture%20d'%C3%A9cran%202026-11-02%20092316.png)
+![](/src/assets/pages/jaquauto-arcade/dev-log/Capture%20d'%C3%A9cran%202026-11-02%20095600.png)
 
 ## Les trois jeux
 
@@ -90,18 +92,13 @@ Quelques choix de game design :
 Les joueurs n'ont pas de compte : un pseudo suffit pour entrer au classement, et l'email n'est demandé que pour participer au concours, avec une case de consentement.
 
 - **Classements.** Un Top 3 du mois s'affiche sous chaque jeu sur l'accueil, et une page dédiée montre le classement du mois ou depuis le début. Chaque pseudo n'y apparaît qu'une fois, avec son meilleur score.
-
 - **Emails séparés des scores.** Les emails vont dans une table à part, reliée au score. Les classements sont publics, mais les règles d'accès de la base (RLS) réservent la lecture des emails aux responsables inscrits dans une table `admins`.
-
 - **Espace responsable** : Connexion par lien magique envoyé par mail, sans mot de passe à gérer. Il affiche, pour chaque jeu, une ligne par participant avec son meilleur score, filtrable par mois en cours, depuis le début ou une plage de dates libre.
-
 - **Cadre légal.** J'ai rédigé les mentions légales et la politique de confidentialité (conservation des emails limitée à 3 mois), liées depuis chaque page et depuis le formulaire de fin de partie.
 
 ## Chronologie
 
 L'essentiel a été construit en huit jours, du 14 au 21 juin 2026 : les trois jeux, les classements et l'espace responsable. La plateforme a ensuite attendu le feu vert de l'entreprise, puis a été relancée en trois jours pour le concours.
-
-[embed: node/aef0b45e-8d7e]
 
 - **14 juin** : premier jeu, Route Verte, en ligne le jour même. Le soir, Course contre la rouille.
 - **16 juin** : classements Supabase, espace d'administration et pages légales.
@@ -109,6 +106,8 @@ L'essentiel a été construit en huit jours, du 14 au 21 juin 2026 : les trois j
 - **21 juin** : bilan CO₂ en fin de partie sur les trois jeux.
 - **16 octobre** : remise en route, filtre par dates dans l'espace administration, correction du fuseau horaire.
 - **19 octobre** : lancement du concours et déploiement de l'anti-triche le jour même.
+
+![](/src/assets/pages/jaquauto-arcade/dev-log/Capture%20d'%C3%A9cran%202026-11-02%20095617.png)
 
 ## Remise en route pour le concours
 
