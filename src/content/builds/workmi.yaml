@@ -8,7 +8,7 @@ resume: >-
   services et un système de réservation. Pas de paiement en ligne : le but est
   d’amener les clients en magasin.
 image: /src/assets/builds/workmi/image.png
-visuel: /src/assets/builds/workmi/visuel.jpg
+visuel: /src/assets/builds/workmi/visuel.png
 statut: auto
 derniereActivite: 2026-10-10
 couleurs:
