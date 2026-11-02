@@ -10,7 +10,9 @@ interface Props {
 }
 
 const { build } = Astro.props;
-const ou = build.liens.map((lien) => lien.libelle).join(' · ') || 'Bientôt en ligne';
+// « Où » reprend les liens principaux (cochés « En haut de la page »), sinon tous les liens.
+const principaux = build.liens.filter((lien) => lien.principal);
+const ou = (principaux.length > 0 ? principaux : build.liens).map((lien) => lien.libelle).join(' · ') || 'Bientôt en ligne';
 // Les sous-pages déjà en ligne, sinon celles annoncées dans l'admin.
 const pages =
   [...build.sousPages.map((page) => page.titre), ...(build.videos.length > 0 ? ['Vidéos'] : [])].join(' · ') ||
