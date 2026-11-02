@@ -1,7 +1,7 @@
 nom: LSS
 numero: 2
 visible: true
-type: Jeu vidéo
+type: 'Nom de code :'
 resume: >-
   Jeu vidéo 3D de shooter spatial. Basé sur Godot Engine et réalisé en C#. Mise
   à l'épreuve de Claude sur du rendu 3D directement pour générer vaisseaux et
