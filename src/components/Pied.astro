@@ -13,7 +13,10 @@ const externes = [
 
 <footer class="pied">
   <div class="conteneur pied__barre">
-    <span>© {new Date().getFullYear()} Spriinty’s Studio</span>
+    <span class="pied__mentions">
+      © {new Date().getFullYear()} Spriinty’s Studio
+      <a href="/mentions-legales">Mentions légales</a>
+    </span>
     <nav class="pied__liens" aria-label="Liens externes">
       {externes.map((lien) => <a href={lien.url} target="_blank" rel="noopener noreferrer">{lien.nom} ↗</a>)}
     </nav>
@@ -38,6 +41,24 @@ const externes = [
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--gris);
+  }
+
+  .pied__mentions {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 20px;
+  }
+
+  .pied__mentions a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    text-decoration: none;
+  }
+
+  .pied__mentions a:hover {
+    color: var(--accent);
   }
 
   .pied__liens {

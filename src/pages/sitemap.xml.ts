@@ -14,6 +14,7 @@ export const GET: APIRoute = async ({ site }) => {
         ? [{ chemin: `/${build.slug}/${ADRESSE_VIDEOS}`, date: build.videos[0].date }]
         : []),
     ]),
+    { chemin: '/mentions-legales', date: null },
   ];
   const urls = pages.map(
     ({ chemin, date }) =>

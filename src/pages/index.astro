@@ -3,6 +3,8 @@ import Studio from '../layouts/Studio.astro';
 import Etoiles from '../components/Etoiles.astro';
 import CarteBuild from '../components/CarteBuild.astro';
 import Logos from '../components/Logos.astro';
+import Contact from '../components/Contact.astro';
+import { CLE_TURNSTILE } from '../lib/contact';
 import { lireBuilds, lireStudio } from '../lib/contenu';
 import { logosDesTechnos } from '../lib/logos';
 import { LIBELLES, type Statut } from '../lib/statut';
@@ -107,6 +109,8 @@ const logos = logosDesTechnos(atelier.technos);
       }
     </div>
   </section>
+
+  {CLE_TURNSTILE && <Contact workmi={liens.workmi} />}
 </Studio>
 
 <style>

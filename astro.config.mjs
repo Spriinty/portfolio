@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, envField } from 'astro/config';
 import react from '@astrojs/react';
 import keystatic from '@keystatic/astro';
 import vercel from '@astrojs/vercel';
@@ -11,4 +11,14 @@ export default defineConfig({
   site: 'https://spriinty-studio.vercel.app',
   integrations: [react(), keystatic()],
   adapter: vercel(),
+  env: {
+    schema: {
+      // Formulaire de contact (src/pages/api/contact.ts), réglé dans les variables Vercel.
+      // Sans clé Turnstile, le formulaire n'est pas affiché ; en dev, les clés de test de Cloudflare servent.
+      PUBLIC_TURNSTILE_SITE_KEY: envField.string({ context: 'client', access: 'public', optional: true }),
+      TURNSTILE_SECRET_KEY: envField.string({ context: 'server', access: 'secret', optional: true }),
+      RESEND_API_KEY: envField.string({ context: 'server', access: 'secret', optional: true }),
+      CONTACT_DESTINATAIRE: envField.string({ context: 'server', access: 'secret', optional: true }),
+    },
+  },
 });

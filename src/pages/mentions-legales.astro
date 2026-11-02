@@ -1,0 +1,102 @@
+---
+import Studio from '../layouts/Studio.astro';
+
+// Seule page du site où figure le nom de famille : obligation légale pour un site professionnel.
+// Les informations sont les mêmes que sur workmi.pro/mentions-legales (même éditeur).
+---
+
+<Studio titre="Mentions légales · Spriinty’s Studio" description="Éditeur, hébergeur et données personnelles du site Spriinty’s Studio.">
+  <header class="conteneur tete">
+    <p class="surtitre">Dernière mise à jour : novembre 2026</p>
+    <h1 class="tete__titre">Mentions légales</h1>
+  </header>
+
+  <div class="conteneur">
+    <div class="prose">
+      <h2>Éditeur du site</h2>
+      <p>
+        Spriinty’s Studio est édité par <strong>Quentin Petrequin</strong>, entrepreneur individuel (EI) sous le régime
+        de la micro-entreprise, dont le nom commercial est Workmi.
+      </p>
+      <ul>
+        <li>E-mail : <a href="mailto:hello@workmi.pro">hello@workmi.pro</a></li>
+        <li>SIREN : 104 506 829 · SIRET : 104 506 829 00019</li>
+        <li>Immatriculation : Registre national des entreprises (RNE)</li>
+        <li>Code APE : 62.01Z, programmation informatique</li>
+      </ul>
+
+      <h2>Directeur de la publication</h2>
+      <p>Quentin Petrequin, joignable à l’adresse <a href="mailto:hello@workmi.pro">hello@workmi.pro</a>.</p>
+
+      <h2>Hébergement</h2>
+      <p>
+        Le site est hébergé par <strong>Vercel Inc.</strong>, 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis
+        (téléphone : +1 559 288 7060, <a href="https://vercel.com">vercel.com</a>).
+      </p>
+
+      <h2>Propriété intellectuelle</h2>
+      <p>
+        Les textes, photos, vidéos et visuels des builds appartiennent à l’éditeur, sauf mention contraire. Toute
+        reproduction sans autorisation écrite est interdite. Les polices (Big Shoulders Display, Instrument Sans,
+        JetBrains Mono) sont distribuées sous licence SIL Open Font License ; les logos des outils viennent de Simple
+        Icons (licence CC0) et restent des marques de leurs propriétaires.
+      </p>
+
+      <h2>Liens vers d’autres sites</h2>
+      <p>
+        Le site renvoie vers des réseaux sociaux, des jeux et des sites tiers, sur lesquels l’éditeur n’a pas la main.
+        Les liens affiliés, s’il y en a, sont signalés comme tels là où ils apparaissent : un achat par ce lien peut
+        rapporter une commission à l’éditeur, sans surcoût pour vous.
+      </p>
+
+      <h2 id="donnees">Données personnelles</h2>
+      <p>
+        Le site ne demande aucun compte et ne dépose aucun cookie de mesure d’audience ou de publicité. Seule l’admin,
+        réservée à l’éditeur, utilise un cookie de connexion.
+      </p>
+      <p>
+        <strong>Formulaire de contact.</strong> Votre nom, votre adresse e-mail et votre message servent uniquement à
+        vous répondre. Ils sont transmis par e-mail à l’éditeur grâce au service d’envoi Resend, et conservés dans sa
+        messagerie le temps de l’échange, au plus trois ans. Ils ne sont ni vendus, ni utilisés pour de la prospection.
+        Pour bloquer les robots, le formulaire utilise Cloudflare Turnstile, qui analyse des données techniques de
+        votre navigateur (dont l’adresse IP) le temps de la vérification.
+      </p>
+      <p>
+        Vous pouvez demander l’accès, la rectification ou la suppression de vos données à
+        <a href="mailto:hello@workmi.pro">hello@workmi.pro</a>, et introduire une réclamation auprès de la
+        <a href="https://www.cnil.fr">CNIL</a>.
+      </p>
+    </div>
+  </div>
+</Studio>
+
+<style>
+  .tete {
+    display: grid;
+    gap: 22px;
+    padding-block: 88px 56px;
+  }
+
+  .tete__titre {
+    margin: 0;
+    font-family: var(--f-titre);
+    font-weight: 900;
+    font-size: clamp(56px, 8vw, 112px);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .prose {
+    padding-bottom: 112px;
+  }
+
+  @media (max-width: 767px) {
+    .tete {
+      padding-block: 56px 40px;
+    }
+
+    .prose {
+      padding-bottom: 72px;
+    }
+  }
+</style>

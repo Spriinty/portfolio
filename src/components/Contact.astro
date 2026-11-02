@@ -1,0 +1,308 @@
+---
+import { CLE_TURNSTILE } from '../lib/contact';
+
+interface Props {
+  workmi: string | null;
+}
+
+const { workmi } = Astro.props;
+---
+
+<section id="contact" class="conteneur contact" aria-labelledby="titre-contact">
+  <div class="contact__grille">
+    <div class="contact__texte">
+      <p class="surtitre contact__surtitre">Contact</p>
+      <h2 id="titre-contact" class="contact__titre">Laisser un message</h2>
+      <p class="contact__para">
+        Une question sur un build, une idée, une collaboration ? Écrivez ici, la réponse arrive par e-mail.
+      </p>
+      {
+        workmi && (
+          <p class="contact__para contact__para--petit">
+            Pour la vitrine en ligne d’un commerce, c’est sur{' '}
+            <a href={workmi} target="_blank" rel="noopener noreferrer">
+              Workmi
+            </a>
+            .
+          </p>
+        )
+      }
+    </div>
+
+    <form class="formulaire" data-contact data-cle={CLE_TURNSTILE} novalidate>
+      <div class="formulaire__ligne">
+        <label class="champ">
+          <span class="champ__libelle">Nom</span>
+          <input name="nom" type="text" autocomplete="name" maxlength="100" required />
+        </label>
+        <label class="champ">
+          <span class="champ__libelle">E-mail</span>
+          <input name="email" type="email" autocomplete="email" maxlength="200" required />
+        </label>
+      </div>
+      <label class="champ">
+        <span class="champ__libelle">Message</span>
+        <textarea name="message" rows="6" minlength="10" maxlength="5000" required></textarea>
+      </label>
+      <!-- Champ piège : caché aux humains, rempli par les robots. -->
+      <label class="formulaire__piege" aria-hidden="true">
+        Site web <input name="site" type="text" tabindex="-1" autocomplete="off" />
+      </label>
+      <div class="formulaire__verification" data-turnstile></div>
+      <div class="formulaire__bas">
+        <button type="submit" class="bouton bouton--accent" data-envoyer>Envoyer le message</button>
+        <p class="formulaire__mention">
+          Votre nom, votre adresse et votre message servent uniquement à vous répondre.{' '}
+          <a href="/mentions-legales#donnees">En savoir plus</a>
+        </p>
+      </div>
+      <p class="formulaire__etat" data-etat role="status" aria-live="polite"></p>
+      <noscript><p class="formulaire__etat">Le formulaire a besoin de JavaScript pour vérifier que vous n’êtes pas un robot.</p></noscript>
+    </form>
+  </div>
+</section>
+
+<style>
+  .contact {
+    padding-bottom: 112px;
+  }
+
+  .contact__grille {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+    gap: 40px 64px;
+    padding-top: 56px;
+    border-top: 1px solid var(--trait);
+  }
+
+  .contact__texte {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .contact__surtitre {
+    color: var(--accent-texte);
+  }
+
+  .contact__titre {
+    margin: 0;
+    font-family: var(--f-titre);
+    font-weight: 800;
+    font-size: clamp(40px, 5vw, 56px);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .contact__para {
+    max-width: 460px;
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--texte-doux);
+  }
+
+  .contact__para--petit {
+    font-size: 15px;
+    color: var(--gris);
+  }
+
+  .contact__para a {
+    color: var(--texte);
+  }
+
+  .formulaire {
+    display: grid;
+    gap: 18px;
+  }
+
+  .formulaire__ligne {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+    gap: 18px;
+  }
+
+  .champ {
+    display: grid;
+    gap: 8px;
+  }
+
+  .champ__libelle {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gris);
+  }
+
+  .champ input,
+  .champ textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    border: 1px solid var(--bord);
+    border-radius: 0;
+    background: var(--noir-profond);
+    color: var(--texte);
+    font: inherit;
+    font-size: 16px;
+  }
+
+  .champ textarea {
+    resize: vertical;
+  }
+
+  .champ input:focus,
+  .champ textarea:focus {
+    border-color: var(--accent);
+    outline: none;
+  }
+
+  .champ :user-invalid {
+    border-color: var(--accent);
+  }
+
+  .formulaire__piege {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .formulaire__verification:empty {
+    display: none;
+  }
+
+  .formulaire__bas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 20px;
+  }
+
+  .formulaire__bas .bouton:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+
+  .formulaire__mention {
+    flex: 1 1 220px;
+    margin: 0;
+    font-size: 13px;
+    color: var(--gris);
+  }
+
+  .formulaire__mention a {
+    color: var(--texte-doux);
+  }
+
+  .formulaire__etat {
+    margin: 0;
+    font-size: 15px;
+    color: var(--texte);
+  }
+
+  .formulaire__etat:empty {
+    display: none;
+  }
+
+  .formulaire__etat[data-type='erreur'] {
+    color: var(--accent-texte);
+  }
+
+  @media (max-width: 767px) {
+    .contact {
+      padding-bottom: 72px;
+    }
+
+    .contact__grille {
+      padding-top: 40px;
+    }
+
+    .contact__para {
+      font-size: 17px;
+    }
+  }
+</style>
+
+<script>
+  type Turnstile = {
+    render: (zone: Element, options: Record<string, unknown>) => string;
+    getResponse: (widget: string) => string | undefined;
+    reset: (widget: string) => void;
+  };
+  type Fenetre = Window & { turnstile?: Turnstile; turnstileCharge?: () => void };
+
+  const formulaire = document.querySelector<HTMLFormElement>('[data-contact]');
+  const zone = formulaire?.querySelector('[data-turnstile]');
+  const etat = formulaire?.querySelector<HTMLElement>('[data-etat]');
+  const bouton = formulaire?.querySelector<HTMLButtonElement>('[data-envoyer]');
+  const fenetre = window as Fenetre;
+  let widget = '';
+  let chargement: Promise<void> | undefined;
+
+  const afficher = (texte: string, type?: 'erreur') => {
+    if (!etat) return;
+    etat.textContent = texte;
+    if (type) etat.dataset.type = type;
+    else delete etat.dataset.type;
+  };
+
+  // Le script de Cloudflare ne se charge qu'au premier contact avec le formulaire.
+  const charger = () =>
+    (chargement ??= new Promise<void>((pret, echec) => {
+      fenetre.turnstileCharge = () => {
+        widget = fenetre.turnstile!.render(zone!, {
+          sitekey: formulaire!.dataset.cle,
+          theme: 'dark',
+          language: 'fr',
+          appearance: 'interaction-only',
+          'refresh-expired': 'auto',
+        });
+        pret();
+      };
+      const script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=turnstileCharge';
+      script.async = true;
+      script.onerror = () => echec(new Error('Turnstile indisponible'));
+      document.head.append(script);
+    }));
+
+  const jeton = async () => {
+    await charger();
+    for (let essai = 0; essai < 50; essai++) {
+      const valeur = fenetre.turnstile?.getResponse(widget);
+      if (valeur) return valeur;
+      await new Promise((attente) => setTimeout(attente, 200));
+    }
+    return '';
+  };
+
+  if (formulaire && zone && formulaire.dataset.cle) {
+    formulaire.addEventListener('focusin', () => charger().catch(() => {}), { once: true });
+
+    formulaire.addEventListener('submit', async (evenement) => {
+      evenement.preventDefault();
+      if (!formulaire.reportValidity()) return;
+      bouton!.disabled = true;
+      afficher('Vérification…');
+      try {
+        if (!(await jeton())) throw new Error('La vérification anti-robot n’a pas abouti. Réessayez dans un instant.');
+        afficher('Envoi…');
+        const envoi = await fetch('/api/contact', { method: 'POST', body: new FormData(formulaire) });
+        const resultat = await envoi.json().catch(() => ({}));
+        if (!envoi.ok) throw new Error(resultat.erreur ?? 'L’envoi a échoué. Réessayez plus tard.');
+        formulaire.reset();
+        afficher('Message envoyé, merci. La réponse arrivera par e-mail.');
+      } catch (erreur) {
+        afficher(erreur instanceof Error && erreur.message !== 'Turnstile indisponible'
+          ? erreur.message
+          : 'La vérification anti-robot ne se charge pas. Vérifiez qu’un bloqueur ne l’empêche pas.', 'erreur');
+      } finally {
+        bouton!.disabled = false;
+        if (widget) fenetre.turnstile?.reset(widget);
+      }
+    });
+  }
+</script>

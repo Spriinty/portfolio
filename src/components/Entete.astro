@@ -1,4 +1,6 @@
 ---
+import { CLE_TURNSTILE } from '../lib/contact';
+
 interface Props {
   github: string | null;
 }
@@ -24,6 +26,7 @@ const { github } = Astro.props;
     <nav id="menu-principal" class="entete__nav" aria-label="Navigation principale" data-menu>
       <a href="/#builds">Builds</a>
       <a href="/#atelier">Derrière le studio</a>
+      {CLE_TURNSTILE && <a href="/#contact">Contact</a>}
       {github && <a href={github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>}
     </nav>
   </div>
