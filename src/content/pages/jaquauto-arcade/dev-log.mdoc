@@ -1,0 +1,196 @@
+---
+titre: DevLog
+visible: true
+ordre: 1
+resume: >-
+  DevLog du projet Jaquauto Arcade développé pour l'entreprise Jaqu'auto où je
+  travaille.
+---
+## Le projet en bref
+
+[Jaqu'Auto Arcade](https://jaquauto-arcade.vercel.app/) est une plateforme de trois mini-jeux rétro que j'ai conçue et développée seul pour Jaqu'Auto, une entreprise de casse automobile et de pièces de réemploi. Elle sert de support à un jeu concours dont le lot est GTA 6, lancé le 19 octobre 2026.
+
+Chaque jeu fait passer un message sur le métier de l'entreprise : trier les épaves, réemployer les pièces, recycler l'acier. En fin de partie, le joueur voit une estimation du CO₂ évité grâce à son action.
+
+{% table %}
+- 
+- 
+---
+- En ligne
+- [jaquauto-arcade.vercel.app](https://jaquauto-arcade.vercel.app)
+---
+- Période
+- 14 juin → 19 octobre 2026 (23 commits)
+---
+- Rôle
+- Conception, game design, développement front et back, mise en production, suivi du concours
+---
+- Stack
+- HTML / Canvas / JavaScript sans framework, Supabase (Postgres), Vercel
+---
+- Taille
+- ~2 800 lignes de code, 3 jeux et 5 pages (accueil, classement, administration, mentions légales, confidentialité)
+---
+- Public
+- Clients et abonnés Facebook de Jaqu'Auto, sur mobile en priorité
+{% /table %}
+
+## Stack et architecture
+
+Le site est entièrement statique : les jeux tournent dans le navigateur, et Supabase ne sert qu'à conserver les scores. Il n'y a aucun serveur d'application à maintenir.
+
+- **Front** : HTML, CSS et JavaScript sans framework ni étape de build. Chaque jeu est un canvas animé en temps réel, avec des décors et des sprites en pixel art.
+- **Hébergement** : Vercel, déployé automatiquement à chaque push sur GitHub.
+- **Données** : Supabase (Postgres, règles d'accès RLS, authentification). Quatre tables : `scores`, `contacts`, `admins` et `game_sessions`.
+
+![](/src/assets/pages/jaquauto-arcade/dev-log/Capture%20d'%C3%A9cran%202026-11-02%20092316.png)
+
+## Les trois jeux
+
+Les trois jeux tiennent sur un écran de téléphone, se jouent au doigt ou au clavier et durent quelques minutes. Chacun illustre une étape réelle du métier, avec une difficulté qui monte jusqu'à l'erreur.
+
+{% table %}
+- Jeu
+- Genre
+- Mécanique
+- Message métier
+- Bilan CO₂
+---
+- Route Verte
+- Aiguillage
+- Envoyer chaque épave vers la bonne benne (dépollution, atelier, broyage) avant que la file de 5 ne déborde. Les arrivées passent de 2,6 s à 0,42 s.
+- Le tri des véhicules hors d'usage
+- 6 kg par épave bien orientée
+---
+- Course contre la rouille
+- Arcade / réflexes
+- Sur une route pseudo-3D, la voiture perd des pièces : rattraper la bonne parmi jusqu'à 4 leurres. 4 pièces perdues = panne.
+- Le réemploi des pièces
+- 1,5 kg par pièce
+---
+- La Presse
+- Puzzle (Tetris)
+- Empiler les carcasses, compléter des lignes que la presse compacte. Un niveau toutes les 8 lignes.
+- Le recyclage de l'acier
+- 3 kg par ligne
+{% /table %}
+
+Quelques choix de game design :
+
+- **La Presse** reprend les standards du Tetris moderne : tirage « 7-bag » (les 7 pièces sortent dans un ordre aléatoire avant de revenir), rotations avec décalage contre les murs, pièce fantôme, chute instantanée et aperçu de la pièce suivante.
+- **Course contre la rouille** privilégie la bonne pièce quand plusieurs se chevauchent sous le doigt : un joueur qui vise juste n'est jamais pénalisé par l'imprécision du tactile.
+- **Route Verte** s'arrête au bout de 5 erreurs. Sans cette limite, appuyer au hasard très vite rapportait plus que jouer.
+- **Le bouton pause masque le plateau.** Sinon, on pourrait mettre en pause pour réfléchir à chaque coup.
+- **L'identité visuelle** mélange pixel art et néon synthwave, avec des décors aux couleurs de Jaqu'Auto (hangar, circuit, parc à épaves) et des boutons dessinés. Les icônes emoji ont été retirées parce qu'elles décalaient l'affichage sur iOS.
+
+![](/src/assets/pages/jaquauto-arcade/dev-log/Capture%20d'%C3%A9cran%202026-11-02%20092354.png)![](/src/assets/pages/jaquauto-arcade/dev-log/Capture%20d'%C3%A9cran%202026-11-02%20092411.png)![](/src/assets/pages/jaquauto-arcade/dev-log/Capture%20d'%C3%A9cran%202026-11-02%20092435.png)
+
+## Classements, emails et espace responsable
+
+Les joueurs n'ont pas de compte : un pseudo suffit pour entrer au classement, et l'email n'est demandé que pour participer au concours, avec une case de consentement.
+
+- **Classements.** Un Top 3 du mois s'affiche sous chaque jeu sur l'accueil, et une page dédiée montre le classement du mois ou depuis le début. Chaque pseudo n'y apparaît qu'une fois, avec son meilleur score.
+
+- **Emails séparés des scores.** Les emails vont dans une table à part, reliée au score. Les classements sont publics, mais les règles d'accès de la base (RLS) réservent la lecture des emails aux responsables inscrits dans une table `admins`.
+
+- **Espace responsable** : Connexion par lien magique envoyé par mail, sans mot de passe à gérer. Il affiche, pour chaque jeu, une ligne par participant avec son meilleur score, filtrable par mois en cours, depuis le début ou une plage de dates libre.
+
+- **Cadre légal.** J'ai rédigé les mentions légales et la politique de confidentialité (conservation des emails limitée à 3 mois), liées depuis chaque page et depuis le formulaire de fin de partie.
+
+## Chronologie
+
+L'essentiel a été construit en huit jours, du 14 au 21 juin 2026 : les trois jeux, les classements et l'espace responsable. La plateforme a ensuite attendu le feu vert de l'entreprise, puis a été relancée en trois jours pour le concours.
+
+[embed: node/aef0b45e-8d7e]
+
+- **14 juin** : premier jeu, Route Verte, en ligne le jour même. Le soir, Course contre la rouille.
+- **16 juin** : classements Supabase, espace d'administration et pages légales.
+- **20 juin** : La Presse, et limite de 5 erreurs sur Route Verte.
+- **21 juin** : bilan CO₂ en fin de partie sur les trois jeux.
+- **16 octobre** : remise en route, filtre par dates dans l'espace administration, correction du fuseau horaire.
+- **19 octobre** : lancement du concours et déploiement de l'anti-triche le jour même.
+
+## Remise en route pour le concours
+
+Après trois mois sans activité, la plateforme a été remise en service en octobre 2026, après le teaser Facebook « Quelque chose se prépare » posté par l'équipe commerciale. Le concours a démarré le 19 octobre.
+
+- **Base de données en pause.** L'offre gratuite de Supabase suspend un projet après 7 jours sans activité. J'ai restauré la base, vérifié que le code en ligne correspondait à GitHub, puis validé toute la chaîne par une partie test : enregistrement, classement, espace responsable.
+- **Montée en charge.** J'ai vérifié les limites de l'offre gratuite : requêtes illimitées, 500 Mo de base, 5 Go de trafic par mois. Images et jeux étant servis par Vercel, Supabase ne reçoit que de petites requêtes de score. Il reste deux risques que j'ai signalés : la mise en pause hors période d'activité, et l'absence de sauvegarde automatique, d'où des exports réguliers des participants.
+- **Plage de dates dans** le panneau d'administration du contrôle des scores**.** La durée du concours ne m'avait pas été communiquée. J'ai donc ajouté un filtre du/au, pour qu'un concours sur plusieurs mois reste exploitable.
+- **Plus de 1000 participants.** Supabase renvoie au maximum 1000 lignes par requête, ce qui aurait tronqué la liste des participants sans aucun message. Elle est désormais chargée par paquets.
+- **Fuseau horaire.** Le « mois en cours » commençait à minuit UTC, soit 1 h ou 2 h du matin en France. Une partie jouée le 1er juste après minuit comptait donc pour le mois précédent. Il commence maintenant à minuit heure française.
+- **Finitions.** La carte « Nouveau jeu » a été retirée de l'accueil pour ne garder que les trois jeux du concours, et les personnes cocernées de la communication ont été ajoutés à l'espace d'administration.
+
+## Anti-triche
+
+Le jour du lancement, un score à 91 600 en tête de La Presse m'a fait douter, d'autant que la com demandait aux joueurs de poster leur score en capture d'écran sur Facebook. En auditant le code, j'ai trouvé deux vraies failles, communes aux trois jeux, et je les ai corrigées en production le soir même, sans toucher aux scores déjà enregistrés.
+
+**Faille 1 : ralentir le jeu.** Le jeu avançait d'au plus 60 ms par image, même si l'image avait pris plus longtemps à s'afficher. En bridant le processeur depuis les outils de développement du navigateur, on obtenait une partie 3 à 10 fois plus lente. Désormais, le jeu suit le temps réel en le découpant en petits pas de 20 ms, et se met en pause tout seul quand on change d'onglet.
+
+**Faille 2 : envoyer un score sans jouer.** Les scores étaient écrits directement dans la base avec la clé publique du site : une ligne dans la console suffisait à inscrire n'importe quel score. J'ai remplacé cette écriture directe par deux fonctions Postgres :
+
+1. `start_session` : au lancement d'une partie, le serveur crée une session et note lui-même l'heure de départ.
+1. `submit_score` : en fin de partie, le serveur calcule le temps réellement écoulé et refuse un score impossible à atteindre dans ce délai. Chaque session ne vaut qu'un seul score.
+1. Les droits d'écriture directe sur les tables `scores` et `contacts` sont retirés : tout passe par `submit_score`.
+
+La durée minimale est calculée à partir des règles de chaque jeu, avec une marge de 20 % pour ne jamais refuser un joueur honnête. À Route Verte, par exemple, les épaves arrivent au plus vite toutes les 0,42 s : 10 000 points demandent au moins 6 minutes de jeu. Le déploiement s'est fait dans un ordre précis (SQL, puis site, puis fermeture des droits) pour qu'aucun score légitime ne soit perdu entre deux étapes.
+
+Vérifications faites avec la clé publique du site, comme le ferait un tricheur :
+
+{% table %}
+- Tentative
+- Résultat
+---
+- Écrire 999 999 points directement dans la table des scores
+- Refusé (permission refusée)
+---
+- Ajouter un email directement dans la table des contacts
+- Refusé
+---
+- Envoyer 99 999 points juste après le début d'une partie
+- Refusé (durée incohérente)
+---
+- Partie normale, puis lecture du classement
+- Accepté
+{% /table %}
+
+**Analyser plutôt qu'accuser.** Pour les scores très élevés, j'ai étudié le profil de chaque joueur : progression, écarts entre deux parties, cohérence avec le rythme réel du jeu. La Presse cesse d'accélérer au niveau 12, mais le multiplicateur de points continue de monter : au-delà, un score élevé tient à l'endurance du joueur. Les meilleurs scores (jusqu'à 111 900) se sont révélés crédibles. Pour la remise du lot, je recommande de faire rejouer le gagnant devant témoin, seule garantie absolue pour un jeu qui tourne dans le navigateur.
+
+## Bilan
+
+En deux semaines de concours, du 19 octobre au 1er novembre 2026, 116 joueurs ont enregistré 404 parties.
+
+{% table %}
+- Jeu
+- Parties enregistrées
+- Joueurs
+- Meilleur score
+---
+- Route Verte
+- 201
+- 93
+- 6 215
+---
+- La Presse
+- 106
+- 45
+- 128 500
+---
+- Course contre la rouille
+- 97
+- 53
+- 6 504
+{% /table %}
+
+Un joueur compte ici pour un pseudo distinct. Seules les parties dont le score a été enregistré sont comptées.
+
+**Ce que je retiens**
+
+- **Un jeu qui tourne dans le navigateur ne se protège que côté serveur.** La vérification la plus solide, la durée de la partie, est mesurée par le serveur lui-même, pas envoyée par le navigateur.
+- **Les limites des offres gratuites se lisent avant le lancement** : mise en pause après 7 jours d'inactivité, plafond de 1000 lignes par requête, pas de sauvegarde automatique.
+- **Les dates se gèrent en heure locale dès qu'elles portent une règle métier**, comme le début du mois d'un classement.
+- **Le vanilla JS suffit pour des jeux 2D.** Sans framework ni étape de build, le site se déploie par un simple push et charge vite sur mobile.
+
+**Hors périmètre** : j'ai aussi développé un mode « salon » hors ligne rapidement en quelques heures (il le fallait pour le lendemain) pour un écran sur un salon de l'automobile à Montbéliard. Il génère une version autonome sur clé USB, avec scores en local et export CSV. Le salon s'est fait mais l'option hors ligne sur clé USB ne s'est pas faite faute d'(ordinateur disponible s'est pas fait , mais le mode reste prêt à l'emploi.
+
+**Pistes** : un seuil anti-triche plus strict pour La Presse, et un export CSV des participants directement depuis l'administration.
