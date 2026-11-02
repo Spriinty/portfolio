@@ -4,6 +4,7 @@ import BarreBuild from '../components/BarreBuild.astro';
 import CarteVideo from '../components/CarteVideo.astro';
 import Crayon from '../components/Crayon.astro';
 import { ADRESSE_VIDEOS, lireBuilds, pagesPrevues, type Build } from '../lib/contenu';
+import { imageDePartage, visuelDePage } from '../lib/images';
 
 export async function getStaticPaths() {
   const builds = await lireBuilds();
@@ -17,12 +18,15 @@ interface Props {
 const { build } = Astro.props;
 const prevues = pagesPrevues(build);
 const nbVideos = build.videos.length;
+const visuel = await visuelDePage(build.visuel);
+const partage = await imageDePartage(build.visuel ?? build.image);
 ---
 
 <Studio
   titre={`${build.nom} · Spriinty’s Studio`}
   description={build.resume || build.type}
   theme={build.couleurs}
+  image={partage?.src}
 >
   <BarreBuild
     build={build}
@@ -55,6 +59,26 @@ const nbVideos = build.videos.length;
       }
     </div>
   </header>
+
+  {
+    visuel && (
+      <figure class="conteneur visuel">
+        <div class="visuel__cadre">
+          <img
+            src={visuel.src}
+            width={visuel.attributes.width}
+            height={visuel.attributes.height}
+            alt={`Aperçu de ${build.nom}`}
+            decoding="async"
+            fetchpriority="high"
+          />
+        </div>
+        <figcaption class="visuel__legende">
+          Sc. {String(build.numero).padStart(2, '0')} · {build.nom}
+        </figcaption>
+      </figure>
+    )
+  }
 
   {
     (build.sousPages.length > 0 || nbVideos > 0) && (
@@ -177,6 +201,62 @@ const nbVideos = build.videos.length;
     gap: 12px;
   }
 
+  .visuel {
+    margin-block: 0;
+    padding-bottom: 96px;
+  }
+
+  .visuel__cadre {
+    position: relative;
+    aspect-ratio: 21 / 9;
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 0.12);
+    background: var(--noir-profond);
+  }
+
+  .visuel__cadre img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Vignettage léger et repères de cadrage aux quatre coins, à la couleur du build. */
+  .visuel__cadre::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 120px rgb(0 0 0 / 0.5);
+    pointer-events: none;
+  }
+
+  .visuel__cadre::before {
+    --repere: 24px;
+    content: '';
+    position: absolute;
+    inset: 14px;
+    z-index: 1;
+    background:
+      linear-gradient(var(--accent) 0 0) left top / var(--repere) 2px,
+      linear-gradient(var(--accent) 0 0) left top / 2px var(--repere),
+      linear-gradient(var(--accent) 0 0) right top / var(--repere) 2px,
+      linear-gradient(var(--accent) 0 0) right top / 2px var(--repere),
+      linear-gradient(var(--accent) 0 0) left bottom / var(--repere) 2px,
+      linear-gradient(var(--accent) 0 0) left bottom / 2px var(--repere),
+      linear-gradient(var(--accent) 0 0) right bottom / var(--repere) 2px,
+      linear-gradient(var(--accent) 0 0) right bottom / 2px var(--repere);
+    background-repeat: no-repeat;
+    pointer-events: none;
+  }
+
+  .visuel__legende {
+    margin-top: 12px;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gris);
+  }
+
   .sommaire,
   .dernieres,
   .chantier {
@@ -229,8 +309,14 @@ const nbVideos = build.videos.length;
     color: var(--titre-build);
   }
 
+  /* Trois lignes au plus : le texte complet est sur la sous-page. */
   .sommaire__resume {
     grid-column: 1;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
     font-size: 16px;
     color: var(--texte-doux);
   }
@@ -284,10 +370,20 @@ const nbVideos = build.videos.length;
       font-size: 17px;
     }
 
+    .visuel,
     .sommaire,
     .dernieres,
     .chantier {
       padding-bottom: 64px;
+    }
+
+    .visuel__cadre {
+      aspect-ratio: 16 / 10;
+    }
+
+    .visuel__cadre::before {
+      --repere: 16px;
+      inset: 10px;
     }
 
     .sommaire__lien {

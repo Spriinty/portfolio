@@ -4,6 +4,7 @@ import BarreBuild from '../../components/BarreBuild.astro';
 import CarteVideo from '../../components/CarteVideo.astro';
 import Crayon from '../../components/Crayon.astro';
 import { ADRESSE_VIDEOS, lireBuilds, type Build, type Plateforme } from '../../lib/contenu';
+import { imageDePartage } from '../../lib/images';
 import { PLATEFORMES } from '../../lib/videos';
 
 export async function getStaticPaths() {
@@ -17,6 +18,7 @@ interface Props {
 
 const { build } = Astro.props;
 const total = build.videos.length;
+const partage = await imageDePartage(build.visuel ?? build.image);
 const filtres = (Object.keys(PLATEFORMES) as Plateforme[])
   .map((plateforme) => ({
     plateforme,
@@ -29,6 +31,7 @@ const filtres = (Object.keys(PLATEFORMES) as Plateforme[])
   titre={`Vidéos · ${build.nom} · Spriinty’s Studio`}
   description={`Les vidéos de ${build.nom} : ${filtres.map((f) => PLATEFORMES[f.plateforme].nom).join(', ')}.`}
   theme={build.couleurs}
+  image={partage?.src}
 >
   <BarreBuild
     build={build}

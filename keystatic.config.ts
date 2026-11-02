@@ -83,6 +83,13 @@ const builds = collection({
       directory: 'src/assets/builds',
       publicPath: '/src/assets/builds/',
     }),
+    visuel: fields.image({
+      label: 'Visuel de la page',
+      description:
+        'Grande image en tête de la page du build : capture, photo, image du jeu… Format paysage, au moins 1600 px de large. Elle sert aussi d’aperçu quand le lien est partagé.',
+      directory: 'src/assets/builds',
+      publicPath: '/src/assets/builds/',
+    }),
     statut: fields.select({
       label: 'Statut',
       description: `Automatique : plein régime si la dernière activité date de moins de ${SEUILS.ralenti} jours, au ralenti jusqu’à ${SEUILS.garage} jours, au garage au-delà.`,

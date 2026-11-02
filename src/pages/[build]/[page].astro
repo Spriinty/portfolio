@@ -2,6 +2,7 @@
 import Studio from '../../layouts/Studio.astro';
 import BarreBuild from '../../components/BarreBuild.astro';
 import { ADRESSE_VIDEOS, lireBuilds, type Build, type Page } from '../../lib/contenu';
+import { imageDePartage } from '../../lib/images';
 import { contenuEnHtml } from '../../lib/markdoc';
 
 export async function getStaticPaths() {
@@ -18,6 +19,7 @@ interface Props {
 
 const { build, page } = Astro.props;
 const html = await contenuEnHtml((await page.contenu()).node);
+const partage = await imageDePartage(build.visuel ?? build.image);
 
 // En bas de page : la sous-page suivante, puis les vidéos, sinon retour à l'accueil du build.
 const index = build.sousPages.findIndex((autre) => autre.slug === page.slug);
@@ -33,6 +35,7 @@ const suite = apres
   titre={`${page.titre} · ${build.nom} · Spriinty’s Studio`}
   description={page.resume || build.resume || build.type}
   theme={build.couleurs}
+  image={partage?.src}
 >
   <BarreBuild
     build={build}

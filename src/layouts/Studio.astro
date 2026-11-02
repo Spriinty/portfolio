@@ -12,9 +12,14 @@ interface Props {
   description: string;
   /** Couleurs d'un build : la page prend son ambiance, la barre du studio reste la même. */
   theme?: { fond: string; accent: string; titre: string };
+  /** Aperçu affiché quand le lien est partagé (og:image), 1200 × 630. */
+  image?: string;
 }
 
-const { titre, description, theme } = Astro.props;
+const { titre, description, theme, image } = Astro.props;
+// Les moteurs de recherche coupent vers 160 caractères : on coupe nous-mêmes, sur un mot entier.
+const resume = description.length > 160 ? `${description.slice(0, 157).replace(/\s+\S*$/, '')}…` : description;
+const apercu = image && new URL(image, Astro.site ?? Astro.url).href;
 const studio = await lireStudio();
 const style = theme
   ? `--fond: ${theme.fond}; --accent: ${theme.accent}; --titre-build: ${theme.titre};`
@@ -27,12 +32,16 @@ const style = theme
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{titre}</title>
-    <meta name="description" content={description} />
+    <meta name="description" content={resume} />
     <meta name="theme-color" content="#050506" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={titre} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={resume} />
+    {apercu && <meta property="og:image" content={apercu} />}
+    {apercu && <meta property="og:image:width" content="1200" />}
+    {apercu && <meta property="og:image:height" content="630" />}
+    <meta name="twitter:card" content={apercu ? 'summary_large_image' : 'summary'} />
   </head>
   <body>
     <a class="sr-only lien-evitement" href="#contenu">Aller au contenu</a>
