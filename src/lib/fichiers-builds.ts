@@ -6,7 +6,12 @@ const fichiers = import.meta.glob<string>('/src/content/builds/*.yaml', {
   eager: true,
 });
 
-/** Builds triés par numéro, avec le texte brut de leur fichier. */
+const ordre = Object.values(
+  import.meta.glob<string>('/src/content/ordre.yaml', { query: '?raw', import: 'default', eager: true }),
+)[0];
+const RANGS = [...(ordre ?? '').matchAll(/^\s*- (.+)$/gm)].map(([, slug]) => slug.trim());
+
+/** Builds dans l'ordre de « Ordre des builds » (les absents à la fin), avec le texte brut de leur fichier. */
 export const FICHIERS_BUILDS = Object.entries(fichiers)
   .map(([chemin, texte]) => ({
     slug: chemin.slice(chemin.lastIndexOf('/') + 1, -'.yaml'.length),
@@ -15,7 +20,11 @@ export const FICHIERS_BUILDS = Object.entries(fichiers)
         .exec(texte)?.[1]
         ?.trim()
         .replace(/^(['"])(.*)\1$/, '$2') ?? 'Build',
-    numero: Number(/^numero: (\d+)$/m.exec(texte)?.[1] ?? 99),
     texte,
   }))
-  .sort((a, b) => a.numero - b.numero);
+  .sort((a, b) => rang(a.slug) - rang(b.slug) || a.nom.localeCompare(b.nom, 'fr'));
+
+function rang(slug: string) {
+  const i = RANGS.indexOf(slug);
+  return i === -1 ? Infinity : i;
+}

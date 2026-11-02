@@ -72,7 +72,6 @@ const builds = collection({
       name: { label: 'Nom du build' },
       slug: { label: 'Adresse de la page', description: 'Ex. comeback-guitar-lab donne /comeback-guitar-lab' },
     }),
-    numero: fields.integer({ label: 'Numéro de build', validation: { isRequired: true, min: 1 } }),
     visible: fields.checkbox({ label: 'Afficher sur le site', defaultValue: true }),
     type: fields.text({ label: 'Type', description: 'Ex. Lutherie · restauration' }),
     resume: fields.text({ label: 'Résumé', multiline: true }),
@@ -198,13 +197,27 @@ export default config({
   ui: {
     brand: { name: 'Spriinty’s Studio' },
     navigation: {
-      Studio: ['studio', 'builds'],
+      Studio: ['studio', 'ordre', 'builds'],
       Vidéos: ['videos'],
       'Pages des builds': Object.keys(pagesDesBuilds) as `pages-${string}`[],
     },
   },
 
   singletons: {
+    // Le numéro d'un build est sa place dans cette liste : Build 01, 02… sans doublon ni trou.
+    ordre: singleton({
+      label: 'Ordre des builds',
+      path: 'src/content/ordre',
+      format: { data: 'yaml' },
+      schema: {
+        builds: fields.array(fields.relationship({ label: 'Build', collection: 'builds' }), {
+          label: 'Ordre des builds',
+          description:
+            'Glisser les builds pour les réordonner : le premier est le Build 01. Un build absent de la liste (par exemple tout juste créé) se place à la fin.',
+          itemLabel: (props) => FICHIERS_BUILDS.find((build) => build.slug === props.value)?.nom ?? props.value ?? 'Build',
+        }),
+      },
+    }),
     studio: singleton({
       label: 'Le studio',
       path: 'src/content/studio',

@@ -49,9 +49,15 @@ async function lirePages(build: string) {
 
 export type Page = Awaited<ReturnType<typeof lirePages>>[number];
 
-/** Builds triés par numéro, sans ceux masqués dans l'admin, avec leurs sous-pages et leurs vidéos. */
+/** Builds dans l'ordre choisi dans l'admin, sans ceux masqués, avec leurs sous-pages et leurs vidéos. */
 export async function lireBuilds() {
-  const [entrees, videos] = await Promise.all([lecteur.collections.builds.all(), lireVideos()]);
+  const [entrees, videos, ordre] = await Promise.all([
+    lecteur.collections.builds.all(),
+    lireVideos(),
+    lecteur.singletons.ordre.read(),
+  ]);
+  const rangs = (ordre?.builds ?? []).filter((slug): slug is string => !!slug);
+  const rang = (slug: string) => (rangs.includes(slug) ? rangs.indexOf(slug) : Infinity);
   const builds = await Promise.all(
     entrees.map(async ({ slug, entry }) => {
       const sesVideos = videos.filter((video) => video.build === slug);
@@ -66,7 +72,11 @@ export async function lireBuilds() {
       };
     }),
   );
-  return builds.filter((build) => build.visible).sort((a, b) => a.numero - b.numero);
+  // Le numéro affiché (Build 01, 02…) est la place dans « Ordre des builds » : jamais de doublon ni de trou.
+  return builds
+    .filter((build) => build.visible)
+    .sort((a, b) => rang(a.slug) - rang(b.slug) || a.nom.localeCompare(b.nom, 'fr'))
+    .map((build, i) => ({ ...build, numero: i + 1 }));
 }
 
 export type Build = Awaited<ReturnType<typeof lireBuilds>>[number];
