@@ -16,7 +16,7 @@ image: /src/assets/builds/lss/image.jpg
 statut: auto
 derniereActivite: 2026-11-01
 couleurs:
-  titre: '#243DA3'
+  titre: '#5669B3'
   fond: '#0A0F24'
-  accent: '#EEE7D7'
+  accent: '#5669B3'
 liens: []
