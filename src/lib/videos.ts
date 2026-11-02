@@ -91,9 +91,3 @@ export async function miniatureDe(video: Video) {
   }
   return (await miniatureDistante(video)) ? `/miniatures/${video.slug}.webp` : undefined;
 }
-
-const formatDate = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
-
-export function dateVideo(date: string) {
-  return formatDate.format(new Date(`${date}T12:00:00`));
-}

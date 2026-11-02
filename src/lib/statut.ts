@@ -1,4 +1,5 @@
-export type Statut = 'plein-regime' | 'au-ralenti' | 'au-garage';
+/** « Livré » ne vient jamais du calcul automatique : il se choisit dans l'admin pour un build terminé. */
+export type Statut = 'plein-regime' | 'au-ralenti' | 'au-garage' | 'livre';
 export type ChoixStatut = Statut | 'auto';
 
 /** Nombre de jours sans activité avant qu'un build en mode automatique change de statut. */
@@ -8,6 +9,7 @@ export const LIBELLES: Record<Statut, string> = {
   'plein-regime': 'Plein régime',
   'au-ralenti': 'Au ralenti',
   'au-garage': 'Au garage',
+  livre: 'Livré',
 };
 
 export function joursDepuis(date: string, maintenant = new Date()): number {

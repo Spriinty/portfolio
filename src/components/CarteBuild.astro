@@ -1,5 +1,6 @@
 ---
 import Crayon from './Crayon.astro';
+import Depuis from './Depuis.astro';
 import Statut from './Statut.astro';
 import type { Build } from '../lib/contenu';
 import { imageDeCarte } from '../lib/images';
@@ -19,7 +20,7 @@ const fond = await imageDeCarte(build.image);
 ---
 
 <!-- Le lien du titre couvre toute la carte (::after) ; le crayon passe au-dessus. -->
-<article class="carte" style={`--titre-build: ${build.couleurs.titre}`}>
+<article class="carte" style={`--titre-build: ${build.couleurs.titre}`} data-carte>
   {fond && <img src={fond.src} alt="" class="carte__fond" loading="lazy" decoding="async" />}
   <div class="carte__haut">
     <span>Build {String(build.numero).padStart(2, '0')}</span>
@@ -38,6 +39,8 @@ const fond = await imageDeCarte(build.image);
     <dd>{ou}</dd>
     <dt>Pages</dt>
     <dd>{pages}</dd>
+    <dt>Activité</dt>
+    <dd><Depuis date={build.derniereActivite} /></dd>
   </dl>
 </article>
 
@@ -57,6 +60,10 @@ const fond = await imageDeCarte(build.image);
     transition:
       border-color 0.35s,
       box-shadow 0.35s;
+  }
+
+  .carte[hidden] {
+    display: none;
   }
 
   .carte:hover {

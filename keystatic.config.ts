@@ -92,12 +92,13 @@ const builds = collection({
     }),
     statut: fields.select({
       label: 'Statut',
-      description: `Automatique : plein régime si la dernière activité date de moins de ${SEUILS.ralenti} jours, au ralenti jusqu’à ${SEUILS.garage} jours, au garage au-delà.`,
+      description: `Automatique : plein régime si la dernière activité date de moins de ${SEUILS.ralenti} jours, au ralenti jusqu’à ${SEUILS.garage} jours, au garage au-delà. « Livré » se choisit à la main pour un projet terminé.`,
       options: [
         { label: 'Automatique (selon la dernière activité)', value: 'auto' },
         { label: 'Plein régime', value: 'plein-regime' },
         { label: 'Au ralenti', value: 'au-ralenti' },
         { label: 'Au garage', value: 'au-garage' },
+        { label: 'Livré (projet terminé)', value: 'livre' },
       ],
       defaultValue: 'auto',
     }),

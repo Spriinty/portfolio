@@ -4,18 +4,24 @@ import BarreBuild from '../components/BarreBuild.astro';
 import CarteVideo from '../components/CarteVideo.astro';
 import Crayon from '../components/Crayon.astro';
 import { ADRESSE_VIDEOS, lireBuilds, pagesPrevues, type Build } from '../lib/contenu';
+import { CLE_TURNSTILE } from '../lib/contact';
 import { imageDePartage, visuelDePage } from '../lib/images';
 
 export async function getStaticPaths() {
   const builds = await lireBuilds();
-  return builds.map((build) => ({ params: { build: build.slug }, props: { build } }));
+  // Le dernier build renvoie vers le premier.
+  return builds.map((build, i) => ({
+    params: { build: build.slug },
+    props: { build, suivant: builds.length > 1 ? builds[(i + 1) % builds.length] : undefined },
+  }));
 }
 
 interface Props {
   build: Build;
+  suivant?: Build;
 }
 
-const { build } = Astro.props;
+const { build, suivant } = Astro.props;
 const prevues = pagesPrevues(build);
 const nbVideos = build.videos.length;
 const visuel = await visuelDePage(build.visuel);
@@ -155,6 +161,38 @@ const partage = await imageDePartage(build.visuel ?? build.image);
       </section>
     )
   }
+
+  <section class="conteneur fin" aria-label="Et maintenant">
+    <div class="fin__grille">
+      <div class="fin__bloc">
+        <p class="surtitre">Et maintenant ?</p>
+        <div class="fin__actions">
+          {
+            CLE_TURNSTILE && (
+              <a href="/#contact" class="bouton bouton--accent">
+                Une question sur ce build
+              </a>
+            )
+          }
+          {
+            build.liens.map((lien) => (
+              <a href={lien.url} class="bouton" target="_blank" rel="noopener noreferrer">
+                {lien.libelle} ↗
+              </a>
+            ))
+          }
+        </div>
+      </div>
+      {
+        suivant && (
+          <a href={`/${suivant.slug}`} class="fin__suivant" style={`--titre-build: ${suivant.couleurs.titre}`}>
+            <span class="surtitre">Build suivant</span>
+            <span class="fin__nom">{suivant.nom} →</span>
+          </a>
+        )
+      }
+    </div>
+  </section>
 </Studio>
 
 <style>
@@ -359,6 +397,65 @@ const partage = await imageDePartage(build.visuel ?? build.image);
   .chantier__texte strong {
     color: var(--texte);
     font-weight: 600;
+  }
+
+  .fin {
+    padding-bottom: 112px;
+  }
+
+  .fin__grille {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+    align-items: end;
+    gap: 40px 48px;
+    padding-top: 48px;
+    border-top: 1px solid rgb(255 255 255 / 0.12);
+  }
+
+  .fin__bloc {
+    display: grid;
+    gap: 18px;
+  }
+
+  .fin__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* Le nom du build suivant prend sa propre couleur de titre : un avant-goût de sa page. */
+  .fin__suivant {
+    display: grid;
+    justify-items: end;
+    gap: 10px;
+    color: var(--texte);
+    text-align: right;
+    text-decoration: none;
+  }
+
+  .fin__nom {
+    font-family: var(--f-titre);
+    font-weight: 800;
+    font-size: clamp(36px, 4.5vw, 56px);
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--titre-build);
+    transition: color 0.3s;
+  }
+
+  .fin__suivant:hover .fin__nom {
+    color: var(--accent);
+  }
+
+  @media (max-width: 767px) {
+    .fin {
+      padding-bottom: 72px;
+    }
+
+    .fin__suivant {
+      justify-items: start;
+      text-align: left;
+    }
   }
 
   @media (max-width: 767px) {

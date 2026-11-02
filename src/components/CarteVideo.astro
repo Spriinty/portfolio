@@ -1,7 +1,8 @@
 ---
 import Crayon from './Crayon.astro';
 import type { Video } from '../lib/contenu';
-import { PLATEFORMES, dateVideo, miniatureDe } from '../lib/videos';
+import { dateCourte } from '../lib/dates';
+import { PLATEFORMES, miniatureDe } from '../lib/videos';
 
 interface Props {
   video: Video;
@@ -31,7 +32,7 @@ const [principal] = video.liens;
     </span>
   </div>
   <div class="video__corps">
-    <p class="video__date"><time datetime={video.date}>{dateVideo(video.date)}</time></p>
+    <p class="video__date"><time datetime={video.date}>{dateCourte(video.date)}</time></p>
     <h3 class="video__titre">
       <a href={principal.url} class="video__lien" target="_blank" rel="noopener noreferrer">{video.titre}</a>
     </h3>

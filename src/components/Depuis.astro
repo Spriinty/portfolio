@@ -1,0 +1,28 @@
+---
+import { dateCourte, depuis } from '../lib/dates';
+
+interface Props {
+  date: string | null;
+}
+
+const { date } = Astro.props;
+---
+
+{
+  date ? (
+    <time datetime={date} title={dateCourte(date)} data-depuis>
+      {depuis(date)}
+    </time>
+  ) : (
+    '—'
+  )
+}
+
+<script>
+  import { depuis } from '../lib/dates';
+
+  // Site statique : « il y a 3 jours » est recalculé dans le navigateur pour rester juste.
+  document.querySelectorAll<HTMLTimeElement>('time[data-depuis]').forEach((temps) => {
+    temps.textContent = depuis(temps.dateTime);
+  });
+</script>

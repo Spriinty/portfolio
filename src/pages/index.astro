@@ -7,17 +7,23 @@ import Contact from '../components/Contact.astro';
 import { CLE_TURNSTILE } from '../lib/contact';
 import { lireBuilds, lireStudio } from '../lib/contenu';
 import { logosDesTechnos } from '../lib/logos';
-import { LIBELLES, type Statut } from '../lib/statut';
+import { LIBELLES, statutEffectif, type Statut } from '../lib/statut';
 
 const studio = await lireStudio();
 const builds = await lireBuilds();
 const lignesTitre = studio.titre.split('\n');
+// Filtres : seulement les statuts qui ont au moins un build (recalculés dans le navigateur).
+const nombres = new Map<Statut, number>();
+for (const build of builds) {
+  const statut = statutEffectif(build.statut, build.derniereActivite);
+  nombres.set(statut, (nombres.get(statut) ?? 0) + 1);
+}
 const statuts = Object.keys(LIBELLES) as Statut[];
 const { liens, atelier, manifeste } = studio;
 const logos = logosDesTechnos(atelier.technos);
 ---
 
-<Studio titre="Spriinty’s Studio" description={studio.intro}>
+<Studio titre="Spriinty’s Studio" description={studio.intro} image="/partage.jpg">
   <section class="hero">
     <Etoiles />
     <div class="hero__bande" aria-hidden="true"></div>
@@ -40,16 +46,26 @@ const logos = logosDesTechnos(atelier.technos);
         <p class="surtitre">Le garage</p>
         <h2 id="titre-builds" class="titre-section">Les builds</h2>
       </div>
-      <ul class="legende" aria-label="Légende des statuts">
+      <div class="filtres" role="group" aria-label="Filtrer les builds par statut">
+        <button type="button" class="filtre" data-filtre="" aria-pressed="true">
+          Tous <span class="filtre__nombre" data-nombre>{builds.length}</span>
+        </button>
         {
           statuts.map((statut) => (
-            <li class="statut" data-statut={statut}>
+            <button
+              type="button"
+              class="filtre statut"
+              data-statut={statut}
+              data-filtre={statut}
+              aria-pressed="false"
+              hidden={!nombres.get(statut)}
+            >
               <span class="statut__point" aria-hidden="true" />
-              {LIBELLES[statut]}
-            </li>
+              {LIBELLES[statut]} <span class="filtre__nombre" data-nombre>{nombres.get(statut) ?? 0}</span>
+            </button>
           ))
         }
-      </ul>
+      </div>
     </div>
     <div class="builds__grille">
       {builds.map((build) => <CarteBuild build={build} />)}
@@ -112,6 +128,34 @@ const logos = logosDesTechnos(atelier.technos);
 
   {CLE_TURNSTILE && <Contact workmi={liens.workmi} />}
 </Studio>
+
+<script>
+  import { statutAuto } from '../lib/statut';
+
+  // Le statut automatique dépend de la date du jour : on le recalcule ici aussi, comme sur les cartes.
+  const cartes = [...document.querySelectorAll<HTMLElement>('[data-carte]')];
+  const statuts = cartes.map((carte) => {
+    const statut = carte.querySelector<HTMLElement>('.statut');
+    if (!statut) return '';
+    return statut.dataset.statutAuto !== undefined ? statutAuto(statut.dataset.statutAuto || null) : statut.dataset.statut;
+  });
+  const boutons = [...document.querySelectorAll<HTMLButtonElement>('[data-filtre]')];
+
+  boutons.forEach((bouton) => {
+    const filtre = bouton.dataset.filtre;
+    const nombre = filtre ? statuts.filter((statut) => statut === filtre).length : cartes.length;
+    const compteur = bouton.querySelector('[data-nombre]');
+    if (compteur) compteur.textContent = String(nombre);
+    bouton.hidden = nombre === 0;
+
+    bouton.addEventListener('click', () => {
+      boutons.forEach((autre) => autre.setAttribute('aria-pressed', String(autre === bouton)));
+      cartes.forEach((carte, i) => {
+        carte.hidden = !!filtre && statuts[i] !== filtre;
+      });
+    });
+  });
+</script>
 
 <style>
   .hero {
@@ -195,17 +239,43 @@ const logos = logosDesTechnos(atelier.technos);
     gap: 12px;
   }
 
-  .legende {
+  .filtres {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px 20px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+    gap: 6px;
+  }
+
+  .filtre {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--gris);
     font-family: var(--f-mono);
     font-size: 12px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .filtre[hidden] {
+    display: none;
+  }
+
+  .filtre:hover {
+    color: var(--texte);
+  }
+
+  .filtre[aria-pressed='true'] {
+    border-color: var(--bord);
+    background: var(--carte);
+    color: var(--texte);
+  }
+
+  .filtre__nombre {
     color: var(--gris);
   }
 

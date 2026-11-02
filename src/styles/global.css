@@ -200,6 +200,13 @@ a {
   border: 1px solid var(--gris);
 }
 
+/* Livré : un losange plein, pour qu'il se distingue aussi par la forme. */
+.statut[data-statut='livre'] .statut__point {
+  border-radius: 1px;
+  background: var(--texte);
+  transform: rotate(45deg) scale(0.85);
+}
+
 /* Cartes vidéo : sur la page d'un build (dernières vidéos) et sur sa page Vidéos. */
 .grille-videos {
   display: grid;
