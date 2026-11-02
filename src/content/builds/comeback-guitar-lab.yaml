@@ -15,8 +15,11 @@ couleurs:
 liens:
   - libelle: TikTok
     url: https://www.tiktok.com/@comeback_guitar_l
+    principal: true
   - libelle: Instagram
     url: https://www.instagram.com/comeback_guitar_lab/
+    principal: false
   - libelle: Facebook
     url: https://www.facebook.com/p/Comeback-Guitar-Lab-61592063303689/
+    principal: false
 pages: Vidéos · Outillage essentiel · Journal

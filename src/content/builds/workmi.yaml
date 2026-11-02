@@ -18,8 +18,11 @@ couleurs:
 liens:
   - libelle: workmi.pro
     url: https://www.workmi.pro
-  - libelle: Tiktok
+    principal: true
+  - libelle: TikTok
     url: https://www.tiktok.com/@workmi.pro
+    principal: false
   - libelle: Facebook
     url: https://www.facebook.com/profile.php?id=61572039234925
+    principal: false
 pages: Présentation

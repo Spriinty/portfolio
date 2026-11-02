@@ -13,6 +13,8 @@ couleurs:
 liens:
   - libelle: Jouer
     url: https://spriinty.github.io/hundred-level-laser/
+    principal: true
   - libelle: itch.io
     url: https://spriinty.itch.io/hundred-level-laser
+    principal: true
 pages: Jouer · Devlog

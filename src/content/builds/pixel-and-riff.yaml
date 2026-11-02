@@ -14,12 +14,16 @@ couleurs:
   fond: '#182624'
   accent: '#8FD3C8'
 liens:
-  - libelle: Youtube
+  - libelle: YouTube
     url: https://www.youtube.com/@JuliettePixelRiff
-  - libelle: Tiktok
+    principal: true
+  - libelle: TikTok
     url: https://www.tiktok.com/@juliettepixelriff
+    principal: false
   - libelle: Instagram
     url: https://www.instagram.com/pixel_and_riff/
+    principal: false
   - libelle: Facebook
     url: https://www.facebook.com/profile.php?id=61595375105727
+    principal: false
 pages: Vidéos

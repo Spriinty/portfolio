@@ -120,8 +120,19 @@ const builds = collection({
       fields.object({
         libelle: fields.text({ label: 'Libellé', validation: { isRequired: true } }),
         url: fields.url({ label: 'Adresse', validation: { isRequired: true } }),
+        principal: fields.checkbox({
+          label: 'En haut de la page',
+          description:
+            'Lien principal (le site, le jeu…). Décoché, il n’apparaît qu’en bas de la page, avec tous les liens, dans « Et maintenant ? ».',
+          defaultValue: true,
+        }),
       }),
-      { label: 'Liens', itemLabel: (props) => props.fields.libelle.value || 'Nouveau lien' },
+      {
+        label: 'Liens',
+        description: 'Tous les liens sont repris en bas de la page ; seuls ceux cochés « En haut de la page » sont aussi en tête.',
+        itemLabel: (props) =>
+          `${props.fields.libelle.value || 'Nouveau lien'}${props.fields.principal.value ? ' · en haut' : ''}`,
+      },
     ),
     pages: fields.text({
       label: 'Sous-pages prévues',

@@ -2,12 +2,15 @@ import {
   siAstro,
   siBlender,
   siClaude,
+  siDiscord,
   siDotnet,
   siElevenlabs,
+  siFacebook,
   siGithub,
   siGithubpages,
   siGodotengine,
   siGooglegemini,
+  siInstagram,
   siItchdotio,
   siNextdotjs,
   siNodedotjs,
@@ -21,11 +24,15 @@ import {
   siStripe,
   siSupabase,
   siTailwindcss,
+  siTiktok,
+  siTwitch,
   siTypescript,
   siVercel,
   siVite,
   siWebgl,
   siWordpress,
+  siX,
+  siYoutube,
   type SimpleIcon,
 } from 'simple-icons';
 
@@ -80,4 +87,27 @@ export function logosDesTechnos(technos: readonly { outils: string }[]) {
     }
   }
   return logos;
+}
+
+// Logos des liens d'un build, reconnus à leur adresse (github.io est exclu : c'est souvent le jeu lui-même).
+const ICONES_DES_SITES: [RegExp, SimpleIcon][] = [
+  [/(^|\.)tiktok\.com$/, siTiktok],
+  [/(^|\.)instagram\.com$/, siInstagram],
+  [/(^|\.)(youtube\.com|youtu\.be)$/, siYoutube],
+  [/(^|\.)(facebook\.com|fb\.com)$/, siFacebook],
+  [/(^|\.)itch\.io$/, siItchdotio],
+  [/(^|\.)github\.com$/, siGithub],
+  [/(^|\.)(x\.com|twitter\.com)$/, siX],
+  [/(^|\.)(discord\.gg|discord\.com)$/, siDiscord],
+  [/(^|\.)twitch\.tv$/, siTwitch],
+  [/(^|\.)steampowered\.com$/, siSteam],
+];
+
+export function iconeDeLien(adresse: string) {
+  try {
+    const hote = new URL(adresse).hostname;
+    return ICONES_DES_SITES.find(([motif]) => motif.test(hote))?.[1];
+  } catch {
+    return undefined;
+  }
 }

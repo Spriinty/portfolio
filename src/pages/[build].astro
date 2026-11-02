@@ -6,6 +6,7 @@ import Crayon from '../components/Crayon.astro';
 import { ADRESSE_VIDEOS, lireBuilds, pagesPrevues, type Build } from '../lib/contenu';
 import { CLE_TURNSTILE } from '../lib/contact';
 import { imageDePartage, visuelDePage } from '../lib/images';
+import { iconeDeLien } from '../lib/logos';
 
 export async function getStaticPaths() {
   const builds = await lireBuilds();
@@ -24,6 +25,9 @@ interface Props {
 const { build, suivant } = Astro.props;
 const prevues = pagesPrevues(build);
 const nbVideos = build.videos.length;
+// En tête : les liens principaux. En bas, dans « Et maintenant ? » : tous les liens, avec leur logo.
+const principaux = build.liens.filter((lien) => lien.principal);
+const tousLesLiens = build.liens.map((lien) => ({ ...lien, icone: iconeDeLien(lien.url) }));
 const visuel = await visuelDePage(build.visuel);
 const partage = await imageDePartage(build.visuel ?? build.image);
 ---
@@ -48,9 +52,9 @@ const partage = await imageDePartage(build.visuel ?? build.image);
     <div class="tete__droite">
       {build.resume && <p class="tete__resume">{build.resume}</p>}
       {
-        build.liens.length > 0 && (
+        principaux.length > 0 && (
           <div class="tete__liens">
-            {build.liens.map((lien, i) => (
+            {principaux.map((lien, i) => (
               <a
                 href={lien.url}
                 class:list={['bouton', { 'bouton--accent': i === 0 }]}
@@ -175,8 +179,13 @@ const partage = await imageDePartage(build.visuel ?? build.image);
             )
           }
           {
-            build.liens.map((lien) => (
+            tousLesLiens.map((lien) => (
               <a href={lien.url} class="bouton" target="_blank" rel="noopener noreferrer">
+                {lien.icone && (
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                    <path d={lien.icone.path} />
+                  </svg>
+                )}
                 {lien.libelle} ↗
               </a>
             ))

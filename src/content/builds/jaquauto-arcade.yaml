@@ -13,3 +13,4 @@ couleurs:
 liens:
   - libelle: Jouer
     url: https://jaquauto-arcade.vercel.app
+    principal: true
