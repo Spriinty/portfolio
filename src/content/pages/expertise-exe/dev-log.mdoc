@@ -1,0 +1,286 @@
+---
+titre: DevLog
+visible: false
+ordre: 1
+---
+Une application de bureau qui prépare l'expertise d'un véhicule hors d'usage à partir de ses photos, chiffre chaque pièce sur l'historique de ventes, puis pilote un logiciel métier fermé, sans API, pour y reporter les décisions et imprimer l'étiquette du véhicule.
+
+## Le projet en bref
+
+Dans un centre de recyclage automobile, chaque véhicule qui arrive passe par une expertise : quelles pièces sont en bon état, lesquelles valent la peine d'être démontées et mises en vente, à quel prix. Ce travail se faisait à la main dans un ERP métier lent, fermé et sans API, pièce par pièce, sur des grilles d'une trentaine de lignes par catégorie.
+
+J'ai construit un outil en deux moitiés. La première est une application qui lit les photos du véhicule, demande à une IA de vision l'état de chaque pièce, et retrouve le prix réel de chaque pièce dans l'historique de ventes. La seconde est un robot qui ouvre la grille d'expertise de l'ERP et coche ou décoche « à vendre » selon ces décisions et des règles métier (stock déjà présent, kilométrage, prix plancher, références d'origine). Le robot ne valide jamais : l'humain vérifie et valide lui-même.
+
+Le plus gros du travail n'a pas été l'IA. Ça a été d'automatiser proprement un logiciel qui n'a jamais été prévu pour l'être.
+
+## Fiche technique
+
+{% table %}
+---
+- **Type**
+- Application de bureau interne + robot d'automatisation d'interface
+---
+- **Plateforme**
+- Windows (installeur NSIS)
+---
+- **Application**
+- Next.js 16, React 19, TypeScript, Tailwind CSS 4, Electron 42
+---
+- **IA**
+- Gemini 2.5 Flash (vision, sortie JSON structurée), fournisseur de secours configurable
+---
+- **Données**
+- PostgreSQL (Neon) en lecture seule pour l'historique de ventes, SQLite local alimenté par l'export FTP de l'ERP
+---
+- **Robot**
+- Python 3.12, pywinauto (UI Automation Windows), compilé en `.exe` autonomes avec PyInstaller
+---
+- **Étiquettes**
+- Imprimante thermique Zebra GK420t, langage ZPL envoyé en brut
+---
+- **Marché**
+- API eBay Browse (prix moyen des annonces d'occasion)
+---
+- **Période**
+- Juin à octobre 2026
+---
+- **Équipe**
+- Solo, développé avec Claude Code
+---
+- **Taille**
+- ≈ 5 400 lignes TypeScript, ≈ 5 000 lignes Python, 26 scripts de sonde et de robot
+{% /table %}
+
+## Chronologie
+
+Cinq mois, six étapes. L'application est arrivée en premier ; le robot est venu quand il a fallu reporter ses décisions dans l'ERP sans tout ressaisir.
+
+Début juin**MVP photos → IA → prix**Fiche d'expertise chiffrée
+
+Mi-juin**Appli Windows**Electron, clés chiffrées
+
+Fin juillet**Le robot**Sondes, écriture réversible
+
+Été**Stock et étiquettes**Base locale, ZPL
+
+Septembre**Robustesse**Liste qui défile, repères relatifs
+
+Octobre**Vitesse et garde-fous**59 s → 11 s, sécurité
+
+## Journal de développement
+
+3 juin 2026
+
+### **MVP : des photos à une fiche chiffrée**
+
+Le premier jour, la chaîne complète tourne sur de vraies données. L'appli scanne un dossier de photos, reconnaît la plaque dans le nom des fichiers, regroupe les clichés par véhicule et envoie jusqu'à douze photos à Gemini avec un schéma de réponse JSON imposé. Le PC de travail n'a pas de carte graphique, donc un modèle de vision local était exclu.
+
+Le problème suivant arrive vite : l'IA écrit « Rétroviseur extérieur droit », l'historique de ventes connaît « Retroviseur droit ». J'écris un rapprocheur de libellés (accents retirés, mots-outils ignorés, préfixes tolérés pour droit/droite, bonus au nom de la pièce, popularité en départage). Sur un véhicule test, la couverture des prix passe de 6 à 36 pièces sur 40.
+
+4–5 juin 2026
+
+### **Le catalogue complet et le prix du marché**
+
+L'IA ne liste qu'une cinquantaine de pièces, alors que l'historique en contient plus de 200 types vendus sur un même modèle. J'ajoute une section « Autres pièces vendables » alimentée directement par la base, puis deux colonnes de prix : le prix conseillé tiré de nos propres ventes, et le prix moyen eBay via l'API officielle. Le scraping d'autres sites a été écarté : ils bloquent les robots et cassent à chaque refonte.
+
+- Filtres par état, tri par délai de vente, seuil de « rotation lente » configurable.
+- Les pièces mécaniques invisibles sur les photos (moteur, boîte, alternateur) sont listées d'office en état « Inconnu ».
+- Si l'IA échoue, la fiche s'affiche quand même avec le catalogue.
+
+16–17 juin 2026
+
+### **Devenir une vraie application Windows**
+
+L'appli est empaquetée avec Electron, qui démarre le serveur Next.js à l'intérieur de la fenêtre. Premier installeur, premier bug sérieux : la liste des véhicules s'affiche, mais toute expertise renvoie une erreur 500. Le compilateur par défaut externalisait le pilote PostgreSQL sous un nom haché, qui ne se résolvait que dans le dossier de build d'origine. Le passage à Webpack, avec le pilote déclaré comme paquet externe, règle le problème et fait passer l'installeur de 359 à 170 Mo.
+
+**Leçon**Tester l'application installée, pas seulement le serveur de développement : c'est là que vivent les bugs d'empaquetage.
+
+18 juin 2026
+
+### **Prix par modèle précis, et la question gauche/droite**
+
+Le prix était calculé sur le premier mot du modèle, ce qui mélangeait des véhicules très différents d'une même gamme. Le nouveau calcul coupe le nom du modèle avant la phase ou la motorisation, puis élargit par paliers seulement s'il manque des ventes. Côté eBay, les annonces d'accessoires (« joint de capot », « cache de rétroviseur ») faisaient chuter les moyennes ; un filtre par mots entiers fait passer le prix moyen d'un capot de 29 € à 190 €.
+
+L'IA confond parfois la gauche et la droite d'un véhicule vu de trois quarts. Plusieurs reformulations du prompt n'y changent rien : la difficulté est géométrique. Plutôt que d'insister, j'ajoute un bouton qui échange en un clic l'état d'une pièce et de sa jumelle de l'autre côté.
+
+24 juillet 2026
+
+### **Le logiciel métier n'a pas d'API**
+
+Reporter les décisions dans l'ERP à la main annulait une bonne partie du gain. L'éditeur ne propose ni API ni import en masse. Avant d'écrire une seule ligne de robot, je fais un diagnostic en lecture seule avec l'API UI Automation de Windows : l'ERP tourne en local, c'est une application WPF, et son interface expose plus de 1 400 contrôles, la plupart avec un identifiant stable. Une automatisation fiable, sans reconnaissance d'image, est donc possible.
+
+Première surprise : les sous-fenêtres (grille d'expertise, fiche véhicule) sont invisibles à l'énumération UI Automation standard. Il faut les retrouver par leur handle Win32, puis les ouvrir comme éléments UI Automation. Le premier script lit les 25 pièces d'une grille en 6 secondes, sans rien modifier.
+
+24–27 juillet 2026
+
+### **Écrire sans casser : sondes et tests réversibles**
+
+Chaque nouvelle action du robot passe par la même progression : une sonde qui observe sans cliquer, un test d'écriture qui coche puis remet l'état d'origine, puis seulement le robot. Le bouton « prix moyen » de l'ERP pose un problème particulier : il ne calcule le prix que pour une ligne affichée à l'écran, et la grille met du temps à se charger. Le robot doit donc amener la ligne à l'écran, attendre, puis lire.
+
+**Principe**Le robot remplit, l'humain valide. Rien n'est jamais enregistré dans l'ERP sans un clic humain sur « Valider ».
+
+27–29 juillet 2026
+
+### **Une base locale à partir de l'export FTP**
+
+L'ERP dépose chaque jour ses tables en CSV sur un FTP. J'en tire une base SQLite locale de 150 Mo : pièces, véhicules, dossiers. Elle sert à compter le stock équivalent par interchangeabilité (même pièce, même gamme, même cylindrée pour la mécanique), à retrouver le kilométrage, et à ramener chacun des 1 882 libellés de pièce à sa vraie catégorie, la même pour l'appli et le robot. Une analyse des ventes réelles sert aussi à revoir les profils d'expertise : quelles pièces sont listées mais jamais vendues, et l'inverse.
+
+Été 2026
+
+### **L'étiquette du véhicule en un clic**
+
+Chaque véhicule reçoit une étiquette thermique 80 × 40 mm : désignation, numéro de dossier, code moteur, et une case à entourer pour l'export. Le script lit la fiche véhicule ouverte dans l'ERP, génère le ZPL et l'envoie en brut à l'imprimante Zebra, sans passer par un pilote graphique. Le texte est découpé ligne par ligne par le script : le retour à la ligne automatique de la Zebra réimprime l'excédent par-dessus la dernière ligne.
+
+La désignation complète, avec la motorisation (« 1.6i – 16V »), n'est pas lisible par UI Automation : la liste déroulante contient des objets internes au lieu de texte. Elle est retrouvée dans la base locale, à partir de la plaque.
+
+21 septembre 2026
+
+### **La grille se met à défiler**
+
+Une mise à jour de l'ERP virtualise la liste des pièces : seules les lignes proches de l'écran existent encore dans l'arbre d'accessibilité. Le robot ne voyait plus qu'un écran sur trois. Il fait désormais défiler la liste par paliers, en traitant chaque pièce une seule fois.
+
+J'en profite pour retirer les dernières coordonnées en pixels codées en dur. Le stock et la présence d'une référence d'origine sont maintenant repérés par rapport à des éléments voisins de la même ligne. Les anciennes coordonnées ne valaient que pour un écran, une mise à l'échelle et une position de fenêtre.
+
+28 septembre 2026
+
+### **Une finition prise pour une marque**
+
+Une étiquette sort avec « Finition++ » à la place de la marque. Le script prenait le champ le plus proche du libellé « Marque » ; une fiche en cours de chargement a suffi pour qu'il attrape le mauvais. Les champs sont désormais lus par leur identifiant d'automatisation. Au passage, une désignation sans motorisation venait en fait d'une base locale qui n'avait pas été rafraîchie depuis des semaines.
+
+6 octobre 2026
+
+### **Des clés dans l'installeur**
+
+Un audit révèle que l'installeur embarque les clés d'API en clair. Le build renommait le fichier de secrets en `.bak` pour l'exclure, mais le laissait dans le dossier empaqueté. Pire, le cache du serveur de développement, lui aussi empaqueté, contenait des clés dans 187 fichiers. La configuration de build exclut maintenant ces fichiers, et une vérification automatique recherche chaque valeur de clé dans les 8 500 fichiers de l'application. Effet secondaire : l'installeur passe de 392 à 221 Mo.
+
+**Leçon**Le chiffrement des clés embarquées ne protège que des regards curieux, puisque l'application doit pouvoir les déchiffrer. Ce qui compte, c'est ce qui sort du build : il faut le vérifier, pas le supposer.
+
+14 octobre 2026
+
+### **Chasse aux lenteurs**
+
+Les retours terrain sont clairs : l'outil est devenu lent. Plutôt que de deviner, je chronomètre chaque étape.
+
+- **Robot « Appliquer » : 59 s → 11 s.** Les 32 pièces étaient traitées en 11 s, puis le robot défilait jusqu'en bas en relisant la grille, environ 5 s par lecture, sans plus rien trouver. Il s'arrête maintenant dès qu'il sait avoir vu la dernière ligne, en comparant la position des lignes à la hauteur totale du contenu.
+- **Préparation des prix : 15 s → 2 s.** Chaque lecture d'une clé refaisait une dérivation `scrypt`, volontairement lente et bloquante, deux à trois fois par pièce. La clé est maintenant dérivée une seule fois.
+- **Base de données : non coupable.** Cent requêtes de prix prennent 1,3 s. La vérification a évité d'optimiser au mauvais endroit.
+
+21 octobre 2026
+
+### **Quand l'IA échoue en silence**
+
+Une analyse IA échoue, l'export part vide, et le robot propose de décocher toute la grille : aucune pièce ne correspondait à une décision, et la règle « pièce non analysée, on ne la vend pas » s'appliquait partout. Trois garde-fous sont ajoutés : l'application refuse d'exporter une liste vide, le robot refuse de travailler sur un export vide, et le bandeau d'erreur affiche enfin la vraie cause au lieu d'un message générique. Les réessais de l'IA passent de 3 tentatives sur 4,5 s à 5 tentatives sur 30 s, car les surcharges du service durent souvent plus longtemps.
+
+21–26 octobre 2026
+
+### **Le prix des portes, et le prix des optimisations**
+
+Des portes à moins de 100 € repartent en vente. L'enquête remonte à mon optimisation de la semaine précédente : pour lire le prix moyen d'une porte, le robot fait défiler la ligne, et mon test « tout est lu » comparait ensuite une position prise après le défilement avec des lignes mesurées avant. Une deuxième régression suit : en supprimant une relecture jugée inutile, le robot traitait la grille avant que l'ERP ait rempli les colonnes de stock et de prix.
+
+- La position de défilement est mémorisée au moment de chaque lecture.
+- Le robot attend que chaque ligne ait sa colonne de stock avant de commencer.
+- Si le prix moyen reste illisible, la décision se fait sur le prix de vente historique au lieu de laisser la pièce en vente par défaut.
+- Chaque correction est testée sur une grille tout juste ouverte, avec des portes qui atteignent vraiment le contrôle de prix.
+
+**Leçon**Une optimisation retire souvent un délai qui servait à quelque chose. Les tests doivent reproduire les conditions réelles, pas les conditions confortables.
+
+29–30 octobre 2026
+
+### **25 secondes → 0,7 seconde**
+
+Le chronomètre ajouté à l'étiquette montre 25 s de lecture de fiche sur 25 s au total. Pour chacun des six champs, le script demandait à UI Automation de parcourir toute la fenêtre, plus de 2 500 éléments avec la fenêtre des photos. Les champs utiles sont soit des enfants directs de la fenêtre, soit dans les onglets : en limitant la recherche à ces zones, la lecture tombe à 0,4 s, avec exactement les mêmes valeurs. La recherche complète reste en secours.
+
+La même technique sert au robot pour lire le kilométrage sur la fiche ouverte. La base locale gardait la valeur saisie à la création du dossier (1 km), avant que le vrai kilométrage soit renseigné ; toute la mécanique était écartée à tort.
+
+## Sous le capot
+
+Trois programmes collaborent, sans jamais écrire directement dans l'ERP autrement que par son interface. L'application produit un fichier de décisions ; le robot le lit et agit sur la grille affichée ; l'humain valide.
+
+Entrée**Photos du véhicule**Dossier local, plaque dans le nom des fichiers
+
+Application**IA + prix**État par pièce, prix sur l'historique, filtres de l'expert
+
+Échange**Fichier de décisions**JSON par véhicule, règles et seuils inclus
+
+Robot**Grille de l'ERP**Stock, réf., km, prix moyen, puis coche ou décoche
+
+Humain**Valider**Seul geste qui enregistre
+
+### **Les problèmes les plus coriaces**
+
+{% table %}
+- **Ce qu'on voyait**
+- **La cause**
+- **La solution**
+---
+- L'expertise plante dans l'appli installée, pas en développement
+- Pilote de base de données externalisé sous un nom haché
+- Build Webpack, pilote déclaré externe
+---
+- Sous-fenêtres de l'ERP introuvables
+- Fenêtres WPF de premier niveau ignorées par l'énumération standard
+- Recherche par handle Win32, puis UI Automation
+---
+- Le robot ne traite qu'un écran sur trois
+- Liste virtualisée après une mise à jour
+- Défilement par paliers, dédoublonnage par pièce
+---
+- Désignation complète illisible
+- Liste déroulante liée à des objets internes
+- Lecture dans la base locale, par plaque
+---
+- Stock « ? » sur toutes les lignes
+- Colonnes remplies après l'affichage des lignes
+- Attente d'une colonne de stock par ligne
+---
+- Serveur figé pendant le calcul des prix
+- Dérivation de clé lente et bloquante, refaite à chaque lecture
+- Clé dérivée une fois, valeurs gardées en mémoire
+---
+- Réinstaller l'appli ramène un bug corrigé
+- L'installeur embarquait un robot plus ancien que celui copié à la main
+- Nouvel installeur à chaque changement du robot, empreintes comparées
+{% /table %}
+
+## Chiffres clés
+
+{% table %}
+- **Mesure**
+- **Valeur**
+---
+- Robot « Appliquer » sur une grille de 32 pièces
+- 59 s → 11 s
+---
+- Lecture de la fiche pour l'étiquette
+- 25 s → 0,7 s
+---
+- Préparation des prix sans IA (140 pièces)
+- 15 s → 2,1 s
+---
+- Couverture des prix sur le véhicule test du MVP
+- 6 → 36 pièces sur 40
+---
+- Taille de l'installeur
+- 359 → 221 Mo
+---
+- Contrôles d'interface exposés par l'ERP
+- ≈ 1 400
+---
+- Libellés de pièce catégorisés
+- 1 882
+---
+- Fichiers vérifiés à chaque build pour les fuites de clés
+- 8 563
+---
+- Versions livrées
+- 0.1.0 → 0.3.6
+{% /table %}
+
+## Et ensuite
+
+- **Un journal des passages du robot** : pour chaque véhicule, chaque pièce, la décision et la règle appliquée, consultables après coup.
+- **Un mode « liste à cocher »** : les décisions affichées dans l'ordre exact de la grille, pour les jours où l'on préfère cliquer soi-même.
+- **Le côté gauche/droite** : une piste à vérifier sur des cas réels avant de toucher au prompt.
+- **Un accès officiel** : si l'éditeur ouvre un jour un import ou une API, le robot pourra disparaître au profit d'un simple fichier.
+
+DevLog rédigé à partir de l'historique du code, des notes de projet et du journal de développement. Le logiciel métier et l'entreprise ne sont pas nommés.
