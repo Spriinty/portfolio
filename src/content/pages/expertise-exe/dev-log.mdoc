@@ -2,6 +2,11 @@
 titre: DevLog
 visible: false
 ordre: 1
+resume: >
+  Une application de bureau qui prépare l'expertise d'un véhicule hors d'usage à
+  partir de ses photos, chiffre chaque pièce sur l'historique de ventes, puis
+  pilote un logiciel métier fermé, sans API, pour y reporter les décisions et
+  imprimer l'étiquette du véhicule.
 ---
 Une application de bureau qui prépare l'expertise d'un véhicule hors d'usage à partir de ses photos, chiffre chaque pièce sur l'historique de ventes, puis pilote un logiciel métier fermé, sans API, pour y reporter les décisions et imprimer l'étiquette du véhicule.
 
@@ -77,6 +82,8 @@ Le premier jour, la chaîne complète tourne sur de vraies données. L'appli sca
 
 Le problème suivant arrive vite : l'IA écrit « Rétroviseur extérieur droit », l'historique de ventes connaît « Retroviseur droit ». J'écris un rapprocheur de libellés (accents retirés, mots-outils ignorés, préfixes tolérés pour droit/droite, bonus au nom de la pièce, popularité en départage). Sur un véhicule test, la couverture des prix passe de 6 à 36 pièces sur 40.
 
+---
+
 4–5 juin 2026
 
 ### **Le catalogue complet et le prix du marché**
@@ -87,13 +94,17 @@ L'IA ne liste qu'une cinquantaine de pièces, alors que l'historique en contient
 - Les pièces mécaniques invisibles sur les photos (moteur, boîte, alternateur) sont listées d'office en état « Inconnu ».
 - Si l'IA échoue, la fiche s'affiche quand même avec le catalogue.
 
+---
+
 16–17 juin 2026
 
 ### **Devenir une vraie application Windows**
 
 L'appli est empaquetée avec Electron, qui démarre le serveur Next.js à l'intérieur de la fenêtre. Premier installeur, premier bug sérieux : la liste des véhicules s'affiche, mais toute expertise renvoie une erreur 500. Le compilateur par défaut externalisait le pilote PostgreSQL sous un nom haché, qui ne se résolvait que dans le dossier de build d'origine. Le passage à Webpack, avec le pilote déclaré comme paquet externe, règle le problème et fait passer l'installeur de 359 à 170 Mo.
 
-**Leçon**Tester l'application installée, pas seulement le serveur de développement : c'est là que vivent les bugs d'empaquetage.
+**Leçon :** Tester l'application installée, pas seulement le serveur de développement : c'est là que vivent les bugs d'empaquetage.
+
+---
 
 18 juin 2026
 
@@ -103,6 +114,10 @@ Le prix était calculé sur le premier mot du modèle, ce qui mélangeait des v�
 
 L'IA confond parfois la gauche et la droite d'un véhicule vu de trois quarts. Plusieurs reformulations du prompt n'y changent rien : la difficulté est géométrique. Plutôt que d'insister, j'ajoute un bouton qui échange en un clic l'état d'une pièce et de sa jumelle de l'autre côté.
 
+![](/src/assets/pages/expertise-exe/dev-log/Capture%20d'%C3%A9cran%202026-11-04%20153824.png)
+
+---
+
 24 juillet 2026
 
 ### **Le logiciel métier n'a pas d'API**
@@ -110,6 +125,8 @@ L'IA confond parfois la gauche et la droite d'un véhicule vu de trois quarts. P
 Reporter les décisions dans l'ERP à la main annulait une bonne partie du gain. L'éditeur ne propose ni API ni import en masse. Avant d'écrire une seule ligne de robot, je fais un diagnostic en lecture seule avec l'API UI Automation de Windows : l'ERP tourne en local, c'est une application WPF, et son interface expose plus de 1 400 contrôles, la plupart avec un identifiant stable. Une automatisation fiable, sans reconnaissance d'image, est donc possible.
 
 Première surprise : les sous-fenêtres (grille d'expertise, fiche véhicule) sont invisibles à l'énumération UI Automation standard. Il faut les retrouver par leur handle Win32, puis les ouvrir comme éléments UI Automation. Le premier script lit les 25 pièces d'une grille en 6 secondes, sans rien modifier.
+
+---
 
 24–27 juillet 2026
 
@@ -119,11 +136,15 @@ Chaque nouvelle action du robot passe par la même progression : une sonde qui o
 
 **Principe**Le robot remplit, l'humain valide. Rien n'est jamais enregistré dans l'ERP sans un clic humain sur « Valider ».
 
+---
+
 27–29 juillet 2026
 
 ### **Une base locale à partir de l'export FTP**
 
 L'ERP dépose chaque jour ses tables en CSV sur un FTP. J'en tire une base SQLite locale de 150 Mo : pièces, véhicules, dossiers. Elle sert à compter le stock équivalent par interchangeabilité (même pièce, même gamme, même cylindrée pour la mécanique), à retrouver le kilométrage, et à ramener chacun des 1 882 libellés de pièce à sa vraie catégorie, la même pour l'appli et le robot. Une analyse des ventes réelles sert aussi à revoir les profils d'expertise : quelles pièces sont listées mais jamais vendues, et l'inverse.
+
+---
 
 Été 2026
 
@@ -133,6 +154,10 @@ Chaque véhicule reçoit une étiquette thermique 80 × 40 mm : désignation, nu
 
 La désignation complète, avec la motorisation (« 1.6i – 16V »), n'est pas lisible par UI Automation : la liste déroulante contient des objets internes au lieu de texte. Elle est retrouvée dans la base locale, à partir de la plaque.
 
+![](/src/assets/pages/expertise-exe/dev-log/IMG_8373.jpeg)
+
+---
+
 21 septembre 2026
 
 ### **La grille se met à défiler**
@@ -141,19 +166,15 @@ Une mise à jour de l'ERP virtualise la liste des pièces : seules les lignes pr
 
 J'en profite pour retirer les dernières coordonnées en pixels codées en dur. Le stock et la présence d'une référence d'origine sont maintenant repérés par rapport à des éléments voisins de la même ligne. Les anciennes coordonnées ne valaient que pour un écran, une mise à l'échelle et une position de fenêtre.
 
+---
+
 28 septembre 2026
 
 ### **Une finition prise pour une marque**
 
 Une étiquette sort avec « Finition++ » à la place de la marque. Le script prenait le champ le plus proche du libellé « Marque » ; une fiche en cours de chargement a suffi pour qu'il attrape le mauvais. Les champs sont désormais lus par leur identifiant d'automatisation. Au passage, une désignation sans motorisation venait en fait d'une base locale qui n'avait pas été rafraîchie depuis des semaines.
 
-6 octobre 2026
-
-### **Des clés dans l'installeur**
-
-Un audit révèle que l'installeur embarque les clés d'API en clair. Le build renommait le fichier de secrets en `.bak` pour l'exclure, mais le laissait dans le dossier empaqueté. Pire, le cache du serveur de développement, lui aussi empaqueté, contenait des clés dans 187 fichiers. La configuration de build exclut maintenant ces fichiers, et une vérification automatique recherche chaque valeur de clé dans les 8 500 fichiers de l'application. Effet secondaire : l'installeur passe de 392 à 221 Mo.
-
-**Leçon**Le chiffrement des clés embarquées ne protège que des regards curieux, puisque l'application doit pouvoir les déchiffrer. Ce qui compte, c'est ce qui sort du build : il faut le vérifier, pas le supposer.
+---
 
 14 octobre 2026
 
@@ -165,11 +186,15 @@ Les retours terrain sont clairs : l'outil est devenu lent. Plutôt que de devine
 - **Préparation des prix : 15 s → 2 s.** Chaque lecture d'une clé refaisait une dérivation `scrypt`, volontairement lente et bloquante, deux à trois fois par pièce. La clé est maintenant dérivée une seule fois.
 - **Base de données : non coupable.** Cent requêtes de prix prennent 1,3 s. La vérification a évité d'optimiser au mauvais endroit.
 
+---
+
 21 octobre 2026
 
 ### **Quand l'IA échoue en silence**
 
 Une analyse IA échoue, l'export part vide, et le robot propose de décocher toute la grille : aucune pièce ne correspondait à une décision, et la règle « pièce non analysée, on ne la vend pas » s'appliquait partout. Trois garde-fous sont ajoutés : l'application refuse d'exporter une liste vide, le robot refuse de travailler sur un export vide, et le bandeau d'erreur affiche enfin la vraie cause au lieu d'un message générique. Les réessais de l'IA passent de 3 tentatives sur 4,5 s à 5 tentatives sur 30 s, car les surcharges du service durent souvent plus longtemps.
+
+---
 
 21–26 octobre 2026
 
@@ -184,6 +209,8 @@ Des portes à moins de 100 € repartent en vente. L'enquête remonte à mon opt
 
 **Leçon**Une optimisation retire souvent un délai qui servait à quelque chose. Les tests doivent reproduire les conditions réelles, pas les conditions confortables.
 
+---
+
 29–30 octobre 2026
 
 ### **25 secondes → 0,7 seconde**
@@ -192,19 +219,21 @@ Le chronomètre ajouté à l'étiquette montre 25 s de lecture de fiche sur 25 s
 
 La même technique sert au robot pour lire le kilométrage sur la fiche ouverte. La base locale gardait la valeur saisie à la création du dossier (1 km), avant que le vrai kilométrage soit renseigné ; toute la mécanique était écartée à tort.
 
+---
+
 ## Sous le capot
 
 Trois programmes collaborent, sans jamais écrire directement dans l'ERP autrement que par son interface. L'application produit un fichier de décisions ; le robot le lit et agit sur la grille affichée ; l'humain valide.
 
-Entrée**Photos du véhicule**Dossier local, plaque dans le nom des fichiers
+Entrée **Photos du véhicule :** Dossier local, plaque d'immatriculation dans le nom des fichiers
 
-Application**IA + prix**État par pièce, prix sur l'historique, filtres de l'expert
+Application **IA + prix :** État par pièce, prix sur l'historique, filtres de l'expert
 
 Échange**Fichier de décisions**JSON par véhicule, règles et seuils inclus
 
-Robot**Grille de l'ERP**Stock, réf., km, prix moyen, puis coche ou décoche
+Robot **Grille de l'ERP :** Stock, réf., km, prix moyen, puis coche ou décoche
 
-Humain**Valider**Seul geste qui enregistre
+Humain : Vérification et validation des **pièces expertisées.**
 
 ### **Les problèmes les plus coriaces**
 
