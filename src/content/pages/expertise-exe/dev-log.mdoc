@@ -60,17 +60,28 @@ Le plus gros du travail n'a pas été l'IA. Ça a été d'automatiser proprement
 
 Cinq mois, six étapes. L'application est arrivée en premier ; le robot est venu quand il a fallu reporter ses décisions dans l'ERP sans tout ressaisir.
 
-Début juin**MVP photos → IA → prix**Fiche d'expertise chiffrée
-
-Mi-juin**Appli Windows**Electron, clés chiffrées
-
-Fin juillet**Le robot**Sondes, écriture réversible
-
-Été**Stock et étiquettes**Base locale, ZPL
-
-Septembre**Robustesse**Liste qui défile, repères relatifs
-
-Octobre**Vitesse et garde-fous**59 s → 11 s, sécurité
+{% table %}
+- Début juin
+- Mi-juin
+- Fin juillet
+- Été
+- Septembre
+- Octobre
+---
+- **MVP photos → IA → prix**
+- **Appli Windows**
+- **Le robot**
+- **Stock et étiquettes**
+- **Robustesse**
+- **Vitesse et garde-fous**
+---
+- Fiche d'expertise chiffrée
+- Electron, clés chiffrées
+- Sondes, écriture réversible
+- Base locale, ZPL
+- Liste qui défile, repères relatifs
+- 59 s → 11 s, sécurité
+{% /table %}
 
 ## Journal de développement
 
@@ -81,6 +92,8 @@ Octobre**Vitesse et garde-fous**59 s → 11 s, sécurité
 Le premier jour, la chaîne complète tourne sur de vraies données. L'appli scanne un dossier de photos, reconnaît la plaque dans le nom des fichiers, regroupe les clichés par véhicule et envoie jusqu'à douze photos à Gemini avec un schéma de réponse JSON imposé. Le PC de travail n'a pas de carte graphique, donc un modèle de vision local était exclu.
 
 Le problème suivant arrive vite : l'IA écrit « Rétroviseur extérieur droit », l'historique de ventes connaît « Retroviseur droit ». J'écris un rapprocheur de libellés (accents retirés, mots-outils ignorés, préfixes tolérés pour droit/droite, bonus au nom de la pièce, popularité en départage). Sur un véhicule test, la couverture des prix passe de 6 à 36 pièces sur 40.
+
+![](/src/assets/pages/expertise-exe/dev-log/Capture%20d'%C3%A9cran%202026-11-04%20163725.png)
 
 ---
 
