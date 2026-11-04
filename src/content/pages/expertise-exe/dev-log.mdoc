@@ -1,6 +1,6 @@
 ---
 titre: DevLog
-visible: false
+visible: true
 ordre: 1
 resume: >
   Une application de bureau qui prépare l'expertise d'un véhicule hors d'usage à
@@ -147,7 +147,9 @@ Première surprise : les sous-fenêtres (grille d'expertise, fiche véhicule) so
 
 Chaque nouvelle action du robot passe par la même progression : une sonde qui observe sans cliquer, un test d'écriture qui coche puis remet l'état d'origine, puis seulement le robot. Le bouton « prix moyen » de l'ERP pose un problème particulier : il ne calcule le prix que pour une ligne affichée à l'écran, et la grille met du temps à se charger. Le robot doit donc amener la ligne à l'écran, attendre, puis lire.
 
-**Principe**Le robot remplit, l'humain valide. Rien n'est jamais enregistré dans l'ERP sans un clic humain sur « Valider ».
+**Principe :** Le robot remplit, l'humain valide. Rien n'est jamais enregistré dans l'ERP sans un clic humain sur « Valider ».
+
+![](/src/assets/pages/expertise-exe/dev-log/Capture%20d'%C3%A9cran%202026-11-04%20160510.png)
 
 ---
 
@@ -199,6 +201,8 @@ Les retours terrain sont clairs : l'outil est devenu lent. Plutôt que de devine
 - **Préparation des prix : 15 s → 2 s.** Chaque lecture d'une clé refaisait une dérivation `scrypt`, volontairement lente et bloquante, deux à trois fois par pièce. La clé est maintenant dérivée une seule fois.
 - **Base de données : non coupable.** Cent requêtes de prix prennent 1,3 s. La vérification a évité d'optimiser au mauvais endroit.
 
+![](/src/assets/pages/expertise-exe/dev-log/Capture%20d'%C3%A9cran%202026-11-04%20164057.png)
+
 ---
 
 21 octobre 2026
@@ -220,7 +224,7 @@ Des portes à moins de 100 € repartent en vente. L'enquête remonte à mon opt
 - Si le prix moyen reste illisible, la décision se fait sur le prix de vente historique au lieu de laisser la pièce en vente par défaut.
 - Chaque correction est testée sur une grille tout juste ouverte, avec des portes qui atteignent vraiment le contrôle de prix.
 
-**Leçon**Une optimisation retire souvent un délai qui servait à quelque chose. Les tests doivent reproduire les conditions réelles, pas les conditions confortables.
+**Leçon :** Une optimisation retire souvent un délai qui servait à quelque chose. Les tests doivent reproduire les conditions réelles, pas les conditions confortables.
 
 ---
 
@@ -238,15 +242,25 @@ La même technique sert au robot pour lire le kilométrage sur la fiche ouverte.
 
 Trois programmes collaborent, sans jamais écrire directement dans l'ERP autrement que par son interface. L'application produit un fichier de décisions ; le robot le lit et agit sur la grille affichée ; l'humain valide.
 
-Entrée **Photos du véhicule :** Dossier local, plaque d'immatriculation dans le nom des fichiers
-
-Application **IA + prix :** État par pièce, prix sur l'historique, filtres de l'expert
-
-Échange**Fichier de décisions**JSON par véhicule, règles et seuils inclus
-
-Robot **Grille de l'ERP :** Stock, réf., km, prix moyen, puis coche ou décoche
-
-Humain : Vérification et validation des **pièces expertisées.**
+{% table %}
+- Entrée
+- Application
+- Échange
+- Robot
+- Humain
+---
+- **Photos du véhicule**
+- **IA + prix**
+- **Fichier de décisions**
+- **Grille de l'ERP**
+- **Valider**
+---
+- Dossier local, plaque dans le nom des fichiers
+- État par pièce, prix sur l'historique, filtres de l'expert
+- JSON par véhicule, règles et seuils inclus
+- Stock, réf., km, prix moyen, puis coche ou décoche
+- Seul geste qui enregistre
+{% /table %}
 
 ### **Les problèmes les plus coriaces**
 
