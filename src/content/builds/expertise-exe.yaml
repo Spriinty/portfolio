@@ -7,6 +7,7 @@ resume: >-
   pilote un logiciel métier fermé (sans API) pour y reporter les décisions et
   impression d'étiquette personnalisée relative au véhicule.
 image: /src/assets/builds/expertise-exe/image.png
+visuel: /src/assets/builds/expertise-exe/visuel.png
 statut: auto
 derniereActivite: 2026-11-04
 couleurs:
