@@ -1,0 +1,17 @@
+nom: Expertise.exe
+visible: true
+type: Logiciel
+resume: >-
+  Une application de bureau qui prépare l'expertise d'un véhicule hors d'usage à
+  partir de ses photos, chiffre chaque pièce sur l'historique de ventes, puis
+  pilote un logiciel métier fermé (sans API) pour y reporter les décisions et
+  impression d'étiquette personnalisée relative au véhicule.
+image: /src/assets/builds/expertise-exe/image.png
+statut: auto
+derniereActivite: 2026-11-04
+couleurs:
+  titre: '#D01616'
+  fond: '#260303'
+  accent: '#D01616'
+liens: []
+pages: DevLog
